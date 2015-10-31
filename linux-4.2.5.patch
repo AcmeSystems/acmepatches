@@ -522,7 +522,7 @@ index 94b5dca..0000000
 -CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/at91-ariettag25_defconfig b/arch/arm/configs/at91-ariettag25_defconfig
 deleted file mode 100644
-index b688558..0000000
+index 04bb8ff..0000000
 --- a/arch/arm/configs/at91-ariettag25_defconfig
 +++ /dev/null
 @@ -1,192 +0,0 @@
@@ -665,7 +665,7 @@ index b688558..0000000
 -CONFIG_USB_SERIAL_FTDI_SIO=y
 -CONFIG_USB_SERIAL_PL2303=y
 -CONFIG_USB_GADGET=y
--CONFIG_USB_G_SERIAL=y
+-CONFIG_USB_ETH=y
 -CONFIG_MMC=y
 -CONFIG_MMC_SPI=y
 -CONFIG_NEW_LEDS=y
