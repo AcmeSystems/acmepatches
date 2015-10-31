@@ -1,10 +1,169 @@
+ arch/arm/boot/dts/at91-ariettag25.dts           |  111 +-
  arch/arm/boot/dts/at91-sama5d3_acquaa5.dts      |  121 -
  arch/arm/configs/at91-ariag25_defconfig         |  223 --
- arch/arm/configs/at91-ariettag25_defconfig      |  197 --
+ arch/arm/configs/at91-ariettag25_defconfig      |  192 --
  arch/arm/configs/at91-sama5d3_acquaa5_defconfig | 3220 -----------------------
  drivers/gpu/drm/panel/panel-simple.c            |   56 -
- 5 files changed, 3817 deletions(-)
+ 6 files changed, 7 insertions(+), 3916 deletions(-)
 
+diff --git a/arch/arm/boot/dts/at91-ariettag25.dts b/arch/arm/boot/dts/at91-ariettag25.dts
+index c1c7779..c514502 100644
+--- a/arch/arm/boot/dts/at91-ariettag25.dts
++++ b/arch/arm/boot/dts/at91-ariettag25.dts
+@@ -1,11 +1,7 @@
+ /*
+- * at91-ariettag25.dts - Device Tree file for Arietta G25
++ * Device Tree file for Arietta G25
+  * This device tree is minimal, to activate more peripherals, see:
+  * http://dts.acmesystems.it/arietta/
+-
+- * Copyright (C) 2015 Sergio Tanzilli <sergio@tanzilli.com>
+- *
+- * Licensed under GPLv2 or later. 
+  */
+ /dts-v1/;
+ #include "at91sam9g25.dtsi"
+@@ -42,117 +38,36 @@
+ 				  &pinctrl_mmc0_slot0_clk_cmd_dat0
+ 				  &pinctrl_mmc0_slot0_dat1_3>;
+ 				status = "okay";
++
+ 				slot@0 {
+ 					reg = <0>;
+ 					bus-width = <4>;
+ 				};
+ 			};
+-			i2c0: i2c@f8010000 {
+-				status ="disabled";
+-				wm8731: wm8731@1b {
+-					compatible = "wm8731";
+-					reg = <0x1b>;
+-				};
+-			};
+-			i2c1: i2c@f8014000 {
+-				status ="disabled";
+-			};
+-			usart0: serial@f801c000 {
+-				pinctrl-0 = <&pinctrl_usart0>;
+-				status ="disabled";
+-			};
+-			usart1: serial@f8020000 {
+-				pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts &pinctrl_usart1_cts>;
+-				status ="disabled";
+-			};
+-			usart2: serial@f8024000 {
+-				pinctrl-0 = <&pinctrl_usart2>;
+-				status ="disabled";
+-			};
+-			spi1: spi@f0004000 {
+-				status = "disabled";
+-				cs-gpios = <&pioA 8 0>, <&pioA 0 0>, <&pioA 31 0>, <&pioA 30 0>;
+-				device@0 {
+-					compatible = "spidev";
+-					spi-max-frequency = <50000000>;	    // 50 MHz
+-					reg = <0>;
+-				};
+-				device@1 {
+-					compatible = "spidev";
+-					spi-max-frequency = <50000000>;	    // 50 MHz
+-					reg = <1>;
+-				};
+-				device@2 {
+-					compatible = "spidev";
+-					spi-max-frequency = <50000000>;	    // 50 MHz
+-					reg = <2>;
+-				};
+-				device@3 {
+-					compatible = "spidev";
+-					spi-max-frequency = <50000000>;	    // 50 MHz
+-					reg = <3>;
+-				};
+-			};
+-
+-			adc0: adc@f804c000 {
+-				status = "disabled";
+-				atmel,adc-channels-used = <0xf>;
+-				atmel,adc-num-channels = <4>;
+-				compatible = "atmel,at91sam9x5-adc";
+-				atmel,adc-startup-time = <40>;
+-				atmel,adc-status-register = <0x1c>;
+-				atmel,adc-trigger-register = <0x08>;
+-				atmel,adc-use-external;
+-				atmel,adc-vref = <3250>;
+-				atmel,adc-res = <8 10>;
+-				atmel,adc-res-names = "lowres", "highres";
+-				atmel,adc-use-res = "highres";
+-				trigger@0 {
+-					trigger-name = "continuous";
+-					trigger-value = <0x6>;
+-				};
+-			};
+-
+-			pinctrl@fffff400 {
+-				pwm0 {
+-					pinctrl_pwm0: pwm0-0 {
+-						atmel,pins =
+-						< AT91_PIOB 11 AT91_PERIPH_B AT91_PINCTRL_NONE
+-						  AT91_PIOB 12 AT91_PERIPH_B AT91_PINCTRL_NONE
+-						  AT91_PIOB 13 AT91_PERIPH_B AT91_PINCTRL_NONE
+-						  AT91_PIOB 14 AT91_PERIPH_B AT91_PINCTRL_NONE >;
+-					};
+-				};
+-			};
+-			pwm0: pwm@f8034000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&pinctrl_pwm0>;
+-				status = "disabled";
+-			};
+ 
+-			ssc0: ssc@f0010000 {
+-				status = "disabled";
+-			};
+ 			usb2: gadget@f803c000 {
+ 				status = "okay";
+ 			};
++
+ 			dbgu: serial@fffff200 {
+ 				status = "okay";
+ 			};
+-			pinctrl@fffff400 {
+-			};
++
+ 			rtc@fffffeb0 {
+ 				status = "okay";
+ 			};
+ 		};
++
+ 		usb0: ohci@00600000 {
+ 			status = "okay";
+ 			num-ports = <3>;
+ 		};
++
+ 		usb1: ehci@00700000 {
+ 			status = "okay";
+ 		};
+ 	};
++
+ 	leds {
+ 		compatible = "gpio-leds";
+ 		arietta_led {
+@@ -161,16 +76,4 @@
+ 			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
+-	sound {
+-		compatible = "atmel,sam9x5-wm8731-audio";
+-		atmel,model = "wm8731 @ AT91SAM9X5EK";
+-		atmel,audio-routing =
+-		"Headphone Jack", "RHPOUT",
+-		"Headphone Jack", "LHPOUT",
+-		"LLINEIN", "Line In Jack",
+-		"RLINEIN", "Line In Jack";
+-		atmel,ssc-controller = <&ssc0>;
+-		atmel,audio-codec = <&wm8731>;
+-	};
+-
+ };
 diff --git a/arch/arm/boot/dts/at91-sama5d3_acquaa5.dts b/arch/arm/boot/dts/at91-sama5d3_acquaa5.dts
 deleted file mode 100644
 index 67bb5b3..0000000
@@ -363,13 +522,14 @@ index 94b5dca..0000000
 -CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/at91-ariettag25_defconfig b/arch/arm/configs/at91-ariettag25_defconfig
 deleted file mode 100644
-index 60d8165..0000000
+index b688558..0000000
 --- a/arch/arm/configs/at91-ariettag25_defconfig
 +++ /dev/null
-@@ -1,197 +0,0 @@
+@@ -1,192 +0,0 @@
 -# CONFIG_LOCALVERSION_AUTO is not set
 -# CONFIG_SWAP is not set
 -CONFIG_SYSVIPC=y
+-CONFIG_FHANDLE=y
 -CONFIG_HIGH_RES_TIMERS=y
 -CONFIG_IKCONFIG=y
 -CONFIG_IKCONFIG_PROC=y
@@ -419,7 +579,6 @@ index 60d8165..0000000
 -CONFIG_MTD_CMDLINE_PARTS=y
 -CONFIG_MTD_BLOCK=y
 -CONFIG_MTD_DATAFLASH=y
--CONFIG_MTD_NAND=y
 -CONFIG_MTD_UBI=y
 -CONFIG_MTD_UBI_GLUEBI=y
 -CONFIG_OF=y
@@ -488,13 +647,8 @@ index 60d8165..0000000
 -CONFIG_REGULATOR_FIXED_VOLTAGE=y
 -CONFIG_FB=y
 -CONFIG_FB_MODE_HELPERS=y
--CONFIG_BACKLIGHT_LCD_SUPPORT=y
--# CONFIG_LCD_CLASS_DEVICE is not set
--CONFIG_BACKLIGHT_CLASS_DEVICE=y
--# CONFIG_BACKLIGHT_GENERIC is not set
 -CONFIG_FRAMEBUFFER_CONSOLE=y
 -CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
--CONFIG_LOGO=y
 -CONFIG_SOUND=y
 -CONFIG_SND=y
 -CONFIG_SND_SOC=y
