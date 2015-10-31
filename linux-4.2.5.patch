@@ -1,9 +1,9 @@
  arch/arm/boot/dts/at91-sama5d3_acquaa5.dts      |  121 -
  arch/arm/configs/at91-ariag25_defconfig         |  223 --
- arch/arm/configs/at91-ariettag25_defconfig      |  223 --
+ arch/arm/configs/at91-ariettag25_defconfig      |  213 --
  arch/arm/configs/at91-sama5d3_acquaa5_defconfig | 3220 -----------------------
  drivers/gpu/drm/panel/panel-simple.c            |   56 -
- 5 files changed, 3843 deletions(-)
+ 5 files changed, 3833 deletions(-)
 
 diff --git a/arch/arm/boot/dts/at91-sama5d3_acquaa5.dts b/arch/arm/boot/dts/at91-sama5d3_acquaa5.dts
 deleted file mode 100644
@@ -363,13 +363,16 @@ index 94b5dca..0000000
 -CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/at91-ariettag25_defconfig b/arch/arm/configs/at91-ariettag25_defconfig
 deleted file mode 100644
-index 94b5dca..0000000
+index aa3a36b..0000000
 --- a/arch/arm/configs/at91-ariettag25_defconfig
 +++ /dev/null
-@@ -1,223 +0,0 @@
+@@ -1,213 +0,0 @@
 -# CONFIG_LOCALVERSION_AUTO is not set
 -# CONFIG_SWAP is not set
 -CONFIG_SYSVIPC=y
+-CONFIG_HIGH_RES_TIMERS=y
+-CONFIG_IKCONFIG=y
+-CONFIG_IKCONFIG_PROC=y
 -CONFIG_LOG_BUF_SHIFT=14
 -CONFIG_BLK_DEV_INITRD=y
 -CONFIG_CC_OPTIMIZE_FOR_SIZE=y
@@ -378,7 +381,6 @@ index 94b5dca..0000000
 -CONFIG_SLAB=y
 -CONFIG_MODULES=y
 -CONFIG_MODULE_UNLOAD=y
--# CONFIG_LBDAF is not set
 -# CONFIG_BLK_DEV_BSG is not set
 -# CONFIG_IOSCHED_DEADLINE is not set
 -# CONFIG_IOSCHED_CFQ is not set
@@ -386,7 +388,6 @@ index 94b5dca..0000000
 -CONFIG_ARCH_MULTI_V5=y
 -# CONFIG_ARCH_MULTI_V7 is not set
 -CONFIG_ARCH_AT91=y
--CONFIG_SOC_SAM_V4_V5=y
 -CONFIG_SOC_AT91RM9200=y
 -CONFIG_SOC_AT91SAM9=y
 -CONFIG_AEABI=y
@@ -397,7 +398,6 @@ index 94b5dca..0000000
 -CONFIG_ARM_ATAG_DTB_COMPAT=y
 -CONFIG_CMDLINE="console=ttyS0,115200 initrd=0x21100000,25165824 root=/dev/ram0 rw"
 -CONFIG_KEXEC=y
--CONFIG_AUTO_ZRELADDR=y
 -# CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
 -CONFIG_NET=y
 -CONFIG_PACKET=y
@@ -442,7 +442,6 @@ index 94b5dca..0000000
 -CONFIG_BLK_DEV_SD=y
 -# CONFIG_SCSI_LOWLEVEL is not set
 -CONFIG_NETDEVICES=y
--CONFIG_ARM_AT91_ETHER=y
 -CONFIG_MACB=y
 -# CONFIG_NET_VENDOR_BROADCOM is not set
 -CONFIG_DM9000=y
@@ -504,9 +503,7 @@ index 94b5dca..0000000
 -CONFIG_REGULATOR_FIXED_VOLTAGE=y
 -CONFIG_FB=y
 -CONFIG_FB_ATMEL=y
--CONFIG_BACKLIGHT_LCD_SUPPORT=y
 -# CONFIG_LCD_CLASS_DEVICE is not set
--CONFIG_BACKLIGHT_CLASS_DEVICE=y
 -CONFIG_BACKLIGHT_ATMEL_LCDC=y
 -# CONFIG_BACKLIGHT_GENERIC is not set
 -CONFIG_FRAMEBUFFER_CONSOLE=y
@@ -574,18 +571,11 @@ index 94b5dca..0000000
 -# CONFIG_DEBUG_BUGVERBOSE is not set
 -# CONFIG_FTRACE is not set
 -CONFIG_DEBUG_USER=y
--CONFIG_CRYPTO=y
 -CONFIG_CRYPTO_ECB=y
--CONFIG_CRYPTO_AES=y
--CONFIG_CRYPTO_ARC4=y
--# CONFIG_CRYPTO_ANSI_CPRNG is not set
 -CONFIG_CRYPTO_USER_API_HASH=m
 -CONFIG_CRYPTO_USER_API_SKCIPHER=m
 -# CONFIG_CRYPTO_HW is not set
 -CONFIG_CRC_CCITT=y
--CONFIG_CRC_ITU_T=y
--CONFIG_CRC7=m
--CONFIG_AVERAGE=y
 -CONFIG_FONTS=y
 -CONFIG_FONT_8x8=y
 -CONFIG_FONT_ACORN_8x8=y
