@@ -1,9 +1,9 @@
  arch/arm/boot/dts/at91-sama5d3_acquaa5.dts      |  121 -
  arch/arm/configs/at91-ariag25_defconfig         |  223 --
- arch/arm/configs/at91-ariettag25_defconfig      |  196 --
+ arch/arm/configs/at91-ariettag25_defconfig      |  197 --
  arch/arm/configs/at91-sama5d3_acquaa5_defconfig | 3220 -----------------------
  drivers/gpu/drm/panel/panel-simple.c            |   56 -
- 5 files changed, 3816 deletions(-)
+ 5 files changed, 3817 deletions(-)
 
 diff --git a/arch/arm/boot/dts/at91-sama5d3_acquaa5.dts b/arch/arm/boot/dts/at91-sama5d3_acquaa5.dts
 deleted file mode 100644
@@ -363,10 +363,10 @@ index 94b5dca..0000000
 -CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/at91-ariettag25_defconfig b/arch/arm/configs/at91-ariettag25_defconfig
 deleted file mode 100644
-index fe5cc50..0000000
+index 60d8165..0000000
 --- a/arch/arm/configs/at91-ariettag25_defconfig
 +++ /dev/null
-@@ -1,196 +0,0 @@
+@@ -1,197 +0,0 @@
 -# CONFIG_LOCALVERSION_AUTO is not set
 -# CONFIG_SWAP is not set
 -CONFIG_SYSVIPC=y
@@ -536,6 +536,7 @@ index fe5cc50..0000000
 -# CONFIG_FIRMWARE_MEMMAP is not set
 -CONFIG_EXT4_FS=y
 -CONFIG_FANOTIFY=y
+-CONFIG_AUTOFS4_FS=y
 -CONFIG_VFAT_FS=y
 -CONFIG_TMPFS=y
 -CONFIG_UBIFS_FS=y
