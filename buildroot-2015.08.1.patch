@@ -1,0 +1,534 @@
+diff --git a/board/acmesystems/aria-g25/readme.txt b/board/acmesystems/aria-g25/readme.txt
+deleted file mode 100644
+index 734ccd2..0000000
+--- a/board/acmesystems/aria-g25/readme.txt
++++ /dev/null
+@@ -1,51 +0,0 @@
+-Build instructions
+-==================
+-
+-As a regular user configure and then build:
+-
+-$ make acmesystems_aria_g25_128mb_defconfig (128MB RAM variant)
+-  or...
+-$ make acmesystems_aria_g25_256mb_defconfig (256MB RAM variant)
+-
+-$ make
+-
+-Writing to the MicroSD card
+-===========================
+-
+-Assuming your Aria G25 baseboard has a MicroSD socket, for example with
+-the Terra baseboard, you'll need a blank MicroSD (obviously) initialized
+-in a particular way to be able to boot from it.
+-
+-Assuming the card is seen as /dev/sdb in your PC/laptop/other device
+-you'll need to run the following commands as root or via sudo.
+-
+-Make sure all of the card partitions are unmounted before starting.
+-
+-First we'll need to create two partitions:
+-
+-# sfdisk -uM /dev/sdb <<EOF
+-,32,6
+-;
+-EOF
+-
+-Then we'll need to create the empty filesystems:
+-
+-# mkdosfs -n SD_BOOT /dev/sdb1
+-# mkfs.ext4 -L SD_ROOT /dev/sdb2
+-
+-We'll populate the first partition (boot) with the relevant files:
+-
+-# mount /dev/sdb1 /mnt
+-# cp output/images/at91bootstrap.bin /mnt/BOOT.BIN
+-# cp output/images/zImage /mnt
+-# cp output/images/at91-ariag25.dtb /mnt
+-# umount /mnt
+-
+-And the root filesystem afterwards:
+-
+-# mount /dev/sdb2 /mnt
+-# tar -C /mnt output/images/rootfs.tar
+-# umount /mnt
+-
+-You're done, insert the MicroSD card in the slot and enjoy.
+-
+diff --git a/board/acmesystems/aria-g25/rootfs_overlay/etc/network/interfaces b/board/acmesystems/aria-g25/rootfs_overlay/etc/network/interfaces
+new file mode 100644
+index 0000000..2d75392
+--- /dev/null
++++ b/board/acmesystems/aria-g25/rootfs_overlay/etc/network/interfaces
+@@ -0,0 +1,6 @@
++auto lo
++iface lo inet loopback
++
++auto eth0
++iface eth0 inet dhcp
++hwaddress ether 00:01:04:1b:2C:1F
+diff --git a/board/acmesystems/aria-g25/rootfs_overlay/etc/ssh/sshd_config b/board/acmesystems/aria-g25/rootfs_overlay/etc/ssh/sshd_config
+new file mode 100644
+index 0000000..67c3e49
+--- /dev/null
++++ b/board/acmesystems/aria-g25/rootfs_overlay/etc/ssh/sshd_config
+@@ -0,0 +1,133 @@
++#	$OpenBSD: sshd_config,v 1.97 2015/08/06 14:53:21 deraadt Exp $
++
++# This is the sshd server system-wide configuration file.  See
++# sshd_config(5) for more information.
++
++# This sshd was compiled with PATH=/usr/bin:/bin:/usr/sbin:/sbin
++
++# The strategy used for options in the default sshd_config shipped with
++# OpenSSH is to specify options with their default value where
++# possible, but leave them commented.  Uncommented options override the
++# default value.
++
++#Port 22
++#AddressFamily any
++#ListenAddress 0.0.0.0
++#ListenAddress ::
++
++# The default requires explicit activation of protocol 1
++#Protocol 2
++
++# HostKey for protocol version 1
++#HostKey /etc/ssh/ssh_host_key
++# HostKeys for protocol version 2
++#HostKey /etc/ssh/ssh_host_rsa_key
++#HostKey /etc/ssh/ssh_host_dsa_key
++#HostKey /etc/ssh/ssh_host_ecdsa_key
++#HostKey /etc/ssh/ssh_host_ed25519_key
++
++# Lifetime and size of ephemeral version 1 server key
++#KeyRegenerationInterval 1h
++#ServerKeyBits 1024
++
++# Ciphers and keying
++#RekeyLimit default none
++
++# Logging
++# obsoletes QuietMode and FascistLogging
++#SyslogFacility AUTH
++#LogLevel INFO
++
++# Authentication:
++
++#LoginGraceTime 2m
++PermitRootLogin yes
++#StrictModes yes
++#MaxAuthTries 6
++#MaxSessions 10
++
++#RSAAuthentication yes
++#PubkeyAuthentication yes
++
++# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
++# but this is overridden so installations will only check .ssh/authorized_keys
++AuthorizedKeysFile	.ssh/authorized_keys
++
++#AuthorizedPrincipalsFile none
++
++#AuthorizedKeysCommand none
++#AuthorizedKeysCommandUser nobody
++
++# For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
++#RhostsRSAAuthentication no
++# similar for protocol version 2
++#HostbasedAuthentication no
++# Change to yes if you don't trust ~/.ssh/known_hosts for
++# RhostsRSAAuthentication and HostbasedAuthentication
++#IgnoreUserKnownHosts no
++# Don't read the user's ~/.rhosts and ~/.shosts files
++#IgnoreRhosts yes
++
++# To disable tunneled clear text passwords, change to no here!
++#PasswordAuthentication yes
++#PermitEmptyPasswords no
++
++# Change to no to disable s/key passwords
++#ChallengeResponseAuthentication yes
++
++# Kerberos options
++#KerberosAuthentication no
++#KerberosOrLocalPasswd yes
++#KerberosTicketCleanup yes
++#KerberosGetAFSToken no
++
++# GSSAPI options
++#GSSAPIAuthentication no
++#GSSAPICleanupCredentials yes
++
++# Set this to 'yes' to enable PAM authentication, account processing,
++# and session processing. If this is enabled, PAM authentication will
++# be allowed through the ChallengeResponseAuthentication and
++# PasswordAuthentication.  Depending on your PAM configuration,
++# PAM authentication via ChallengeResponseAuthentication may bypass
++# the setting of "PermitRootLogin without-password".
++# If you just want the PAM account and session checks to run without
++# PAM authentication, then enable this but set PasswordAuthentication
++# and ChallengeResponseAuthentication to 'no'.
++#UsePAM no
++
++#AllowAgentForwarding yes
++#AllowTcpForwarding yes
++#GatewayPorts no
++#X11Forwarding no
++#X11DisplayOffset 10
++#X11UseLocalhost yes
++#PermitTTY yes
++#PrintMotd yes
++#PrintLastLog yes
++#TCPKeepAlive yes
++#UseLogin no
++UsePrivilegeSeparation sandbox		# Default for new installations.
++#PermitUserEnvironment no
++#Compression delayed
++#ClientAliveInterval 0
++#ClientAliveCountMax 3
++#UseDNS no
++#PidFile /var/run/sshd.pid
++#MaxStartups 10:30:100
++#PermitTunnel no
++#ChrootDirectory none
++#VersionAddendum none
++
++# no default banner path
++#Banner none
++
++# override default of no subsystems
++Subsystem	sftp	/usr/libexec/sftp-server
++
++# Example of overriding settings on a per-user basis
++#Match User anoncvs
++#	X11Forwarding no
++#	AllowTcpForwarding no
++#	PermitTTY no
++#	ForceCommand cvs server
+diff --git a/board/acmesystems/arietta-g25/rootfs_overlay/etc/network/interfaces b/board/acmesystems/arietta-g25/rootfs_overlay/etc/network/interfaces
+new file mode 100644
+index 0000000..1545266
+--- /dev/null
++++ b/board/acmesystems/arietta-g25/rootfs_overlay/etc/network/interfaces
+@@ -0,0 +1,9 @@
++auto lo
++iface lo inet loopback
++
++pre-up modprobe g_ether
++auto usb0
++iface usb0 inet static
++address 192.168.10.10
++netmask 255.255.255.0
++gateway 192.168.10.20
+diff --git a/board/acmesystems/arietta-g25/rootfs_overlay/etc/ssh/sshd_config b/board/acmesystems/arietta-g25/rootfs_overlay/etc/ssh/sshd_config
+new file mode 100644
+index 0000000..67c3e49
+--- /dev/null
++++ b/board/acmesystems/arietta-g25/rootfs_overlay/etc/ssh/sshd_config
+@@ -0,0 +1,133 @@
++#	$OpenBSD: sshd_config,v 1.97 2015/08/06 14:53:21 deraadt Exp $
++
++# This is the sshd server system-wide configuration file.  See
++# sshd_config(5) for more information.
++
++# This sshd was compiled with PATH=/usr/bin:/bin:/usr/sbin:/sbin
++
++# The strategy used for options in the default sshd_config shipped with
++# OpenSSH is to specify options with their default value where
++# possible, but leave them commented.  Uncommented options override the
++# default value.
++
++#Port 22
++#AddressFamily any
++#ListenAddress 0.0.0.0
++#ListenAddress ::
++
++# The default requires explicit activation of protocol 1
++#Protocol 2
++
++# HostKey for protocol version 1
++#HostKey /etc/ssh/ssh_host_key
++# HostKeys for protocol version 2
++#HostKey /etc/ssh/ssh_host_rsa_key
++#HostKey /etc/ssh/ssh_host_dsa_key
++#HostKey /etc/ssh/ssh_host_ecdsa_key
++#HostKey /etc/ssh/ssh_host_ed25519_key
++
++# Lifetime and size of ephemeral version 1 server key
++#KeyRegenerationInterval 1h
++#ServerKeyBits 1024
++
++# Ciphers and keying
++#RekeyLimit default none
++
++# Logging
++# obsoletes QuietMode and FascistLogging
++#SyslogFacility AUTH
++#LogLevel INFO
++
++# Authentication:
++
++#LoginGraceTime 2m
++PermitRootLogin yes
++#StrictModes yes
++#MaxAuthTries 6
++#MaxSessions 10
++
++#RSAAuthentication yes
++#PubkeyAuthentication yes
++
++# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
++# but this is overridden so installations will only check .ssh/authorized_keys
++AuthorizedKeysFile	.ssh/authorized_keys
++
++#AuthorizedPrincipalsFile none
++
++#AuthorizedKeysCommand none
++#AuthorizedKeysCommandUser nobody
++
++# For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
++#RhostsRSAAuthentication no
++# similar for protocol version 2
++#HostbasedAuthentication no
++# Change to yes if you don't trust ~/.ssh/known_hosts for
++# RhostsRSAAuthentication and HostbasedAuthentication
++#IgnoreUserKnownHosts no
++# Don't read the user's ~/.rhosts and ~/.shosts files
++#IgnoreRhosts yes
++
++# To disable tunneled clear text passwords, change to no here!
++#PasswordAuthentication yes
++#PermitEmptyPasswords no
++
++# Change to no to disable s/key passwords
++#ChallengeResponseAuthentication yes
++
++# Kerberos options
++#KerberosAuthentication no
++#KerberosOrLocalPasswd yes
++#KerberosTicketCleanup yes
++#KerberosGetAFSToken no
++
++# GSSAPI options
++#GSSAPIAuthentication no
++#GSSAPICleanupCredentials yes
++
++# Set this to 'yes' to enable PAM authentication, account processing,
++# and session processing. If this is enabled, PAM authentication will
++# be allowed through the ChallengeResponseAuthentication and
++# PasswordAuthentication.  Depending on your PAM configuration,
++# PAM authentication via ChallengeResponseAuthentication may bypass
++# the setting of "PermitRootLogin without-password".
++# If you just want the PAM account and session checks to run without
++# PAM authentication, then enable this but set PasswordAuthentication
++# and ChallengeResponseAuthentication to 'no'.
++#UsePAM no
++
++#AllowAgentForwarding yes
++#AllowTcpForwarding yes
++#GatewayPorts no
++#X11Forwarding no
++#X11DisplayOffset 10
++#X11UseLocalhost yes
++#PermitTTY yes
++#PrintMotd yes
++#PrintLastLog yes
++#TCPKeepAlive yes
++#UseLogin no
++UsePrivilegeSeparation sandbox		# Default for new installations.
++#PermitUserEnvironment no
++#Compression delayed
++#ClientAliveInterval 0
++#ClientAliveCountMax 3
++#UseDNS no
++#PidFile /var/run/sshd.pid
++#MaxStartups 10:30:100
++#PermitTunnel no
++#ChrootDirectory none
++#VersionAddendum none
++
++# no default banner path
++#Banner none
++
++# override default of no subsystems
++Subsystem	sftp	/usr/libexec/sftp-server
++
++# Example of overriding settings on a per-user basis
++#Match User anoncvs
++#	X11Forwarding no
++#	AllowTcpForwarding no
++#	PermitTTY no
++#	ForceCommand cvs server
+diff --git a/configs/acme-aria-g25_defconfig b/configs/acme-aria-g25_defconfig
+new file mode 100644
+index 0000000..26940be
+--- /dev/null
++++ b/configs/acme-aria-g25_defconfig
+@@ -0,0 +1,30 @@
++BR2_arm=y
++BR2_KERNEL_HEADERS_VERSION=y
++BR2_DEFAULT_KERNEL_VERSION="4.1.1"
++BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_1=y
++BR2_TOOLCHAIN_BUILDROOT_WCHAR=y
++BR2_TARGET_GENERIC_ROOT_PASSWD="acmesystems"
++BR2_ROOTFS_OVERLAY="$(TOPDIR)/board/acmesystems/aria/rootfs_overlay"
++BR2_LINUX_KERNEL=y
++BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
++BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.1.8.tar.xz"
++BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
++BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(TOPDIR)/board/acmesystems/aria/linux_defconfig"
++BR2_LINUX_KERNEL_ZIMAGE=y
++BR2_LINUX_KERNEL_DTS_SUPPORT=y
++BR2_LINUX_KERNEL_USE_CUSTOM_DTS=y
++BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="$(TOPDIR)/board/acmesystems/aria/aria.dts"
++BR2_PACKAGE_I2C_TOOLS=y
++BR2_PACKAGE_MINICOM=y
++BR2_PACKAGE_PYTHON=y
++BR2_PACKAGE_PYTHON_SERIAL=y
++BR2_PACKAGE_OPENSSH=y
++BR2_PACKAGE_PPPD=y
++BR2_PACKAGE_PPPD_FILTER=y
++BR2_PACKAGE_SOCAT=y
++BR2_PACKAGE_NANO=y
++BR2_TARGET_AT91BOOTSTRAP3=y
++BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_GIT=y
++BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_URL="git://github.com/tanzilli/at91bootstrap.git"
++BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_VERSION="3f957cec253abc80fd10c733e5e596f46e1aef56"
++BR2_TARGET_AT91BOOTSTRAP3_DEFCONFIG="aria-256m"
+diff --git a/configs/acme-arietta-g25_defconfig b/configs/acme-arietta-g25_defconfig
+new file mode 100644
+index 0000000..fe557d0
+--- /dev/null
++++ b/configs/acme-arietta-g25_defconfig
+@@ -0,0 +1,31 @@
++BR2_arm=y
++BR2_TOOLCHAIN_BUILDROOT_WCHAR=y
++BR2_TARGET_GENERIC_ISSUE="Welcome to Arietta G25"
++BR2_TARGET_GENERIC_ROOT_PASSWD="acmesystems"
++BR2_ROOTFS_OVERLAY="$(TOPDIR)/board/acmesystems/arietta-g25/rootfs_overlay"
++BR2_LINUX_KERNEL=y
++BR2_LINUX_KERNEL_CUSTOM_VERSION=y
++BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="4.2.5"
++BR2_LINUX_KERNEL_PATCH="https://raw.githubusercontent.com/AcmeSystems/acmepatches/master/linux-4.2.5.patch"
++BR2_LINUX_KERNEL_DEFCONFIG="at91-ariettag25"
++BR2_LINUX_KERNEL_ZIMAGE=y
++BR2_LINUX_KERNEL_DTS_SUPPORT=y
++BR2_LINUX_KERNEL_INTREE_DTS_NAME="at91-ariettag25"
++BR2_PACKAGE_I2C_TOOLS=y
++BR2_PACKAGE_MINICOM=y
++BR2_PACKAGE_PHP=y
++BR2_PACKAGE_PYTHON=y
++BR2_PACKAGE_PYTHON_SERIAL=y
++BR2_PACKAGE_SQLITE=y
++BR2_PACKAGE_LIBPCAP=y
++BR2_PACKAGE_APACHE=y
++BR2_PACKAGE_OPENSSH=y
++BR2_PACKAGE_WPA_SUPPLICANT=y
++BR2_PACKAGE_WPA_SUPPLICANT_AP_SUPPORT=y
++BR2_PACKAGE_WPA_SUPPLICANT_PASSPHRASE=y
++BR2_PACKAGE_NANO=y
++BR2_TARGET_AT91BOOTSTRAP3=y
++BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_GIT=y
++BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_URL="git://github.com/tanzilli/at91bootstrap.git"
++BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_VERSION="3f957cec253abc80fd10c733e5e596f46e1aef56"
++BR2_TARGET_AT91BOOTSTRAP3_DEFCONFIG="aria-128m"
+diff --git a/configs/acmesystems_aria_g25_128mb_defconfig b/configs/acmesystems_aria_g25_128mb_defconfig
+deleted file mode 100644
+index 91865f5..0000000
+--- a/configs/acmesystems_aria_g25_128mb_defconfig
++++ /dev/null
+@@ -1,23 +0,0 @@
+-# Architecture
+-BR2_arm=y
+-
+-# Toolchain
+-BR2_KERNEL_HEADERS_VERSION=y
+-BR2_DEFAULT_KERNEL_VERSION="4.1.1"
+-BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_1=y
+-
+-# Kernel
+-BR2_LINUX_KERNEL=y
+-BR2_LINUX_KERNEL_CUSTOM_VERSION=y
+-BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="4.1.1"
+-BR2_LINUX_KERNEL_DEFCONFIG="at91_dt"
+-BR2_LINUX_KERNEL_ZIMAGE=y
+-BR2_LINUX_KERNEL_DTS_SUPPORT=y
+-BR2_LINUX_KERNEL_INTREE_DTS_NAME="at91-ariag25"
+-
+-# Bootloader
+-BR2_TARGET_AT91BOOTSTRAP3=y
+-BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_GIT=y
+-BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_URL="git://github.com/tanzilli/at91bootstrap.git"
+-BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_VERSION="3f957cec253abc80fd10c733e5e596f46e1aef56"
+-BR2_TARGET_AT91BOOTSTRAP3_DEFCONFIG="aria-128m"
+diff --git a/configs/acmesystems_aria_g25_256mb_defconfig b/configs/acmesystems_aria_g25_256mb_defconfig
+deleted file mode 100644
+index 936b4f4..0000000
+--- a/configs/acmesystems_aria_g25_256mb_defconfig
++++ /dev/null
+@@ -1,23 +0,0 @@
+-# Architecture
+-BR2_arm=y
+-
+-# Toolchain
+-BR2_KERNEL_HEADERS_VERSION=y
+-BR2_DEFAULT_KERNEL_VERSION="4.1.1"
+-BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_1=y
+-
+-# Kernel
+-BR2_LINUX_KERNEL=y
+-BR2_LINUX_KERNEL_CUSTOM_VERSION=y
+-BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="4.1.1"
+-BR2_LINUX_KERNEL_DEFCONFIG="at91_dt"
+-BR2_LINUX_KERNEL_ZIMAGE=y
+-BR2_LINUX_KERNEL_DTS_SUPPORT=y
+-BR2_LINUX_KERNEL_INTREE_DTS_NAME="at91-ariag25"
+-
+-# Bootloader
+-BR2_TARGET_AT91BOOTSTRAP3=y
+-BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_GIT=y
+-BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_URL="git://github.com/tanzilli/at91bootstrap.git"
+-BR2_TARGET_AT91BOOTSTRAP3_CUSTOM_REPO_VERSION="3f957cec253abc80fd10c733e5e596f46e1aef56"
+-BR2_TARGET_AT91BOOTSTRAP3_DEFCONFIG="aria-256m"
+diff --git a/package/linux-headers/Config.in.host b/package/linux-headers/Config.in.host
+index baf098a..7ee6249 100644
+--- a/package/linux-headers/Config.in.host
++++ b/package/linux-headers/Config.in.host
+@@ -5,7 +5,7 @@ comment "Kernel Header Options"
+ 
+ choice
+ 	prompt "Kernel Headers"
+-	default BR2_KERNEL_HEADERS_4_1
++	default BR2_KERNEL_HEADERS_4_2
+ 	help
+ 	  Select the version of kernel header files you wish to use.
+ 	  You must select the correct set of header files to match
+@@ -91,6 +91,10 @@ choice
+ 		bool "Linux 4.1.x kernel headers"
+ 		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_1
+ 
++	config BR2_KERNEL_HEADERS_4_2
++		bool "Linux 4.2.x kernel headers"
++		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_2
++
+ 	config BR2_KERNEL_HEADERS_VERSION
+ 		bool "Manually specified Linux version"
+ endchoice
+@@ -112,6 +116,10 @@ choice
+ 	  This is used to hide/show some packages that have strict
+ 	  requirements on the version of kernel headers.
+ 
++config BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_2
++	bool "4.2.x"
++	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_2
++
+ config BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_1
+ 	bool "4.1.x"
+ 	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_1
+@@ -222,4 +230,5 @@ config BR2_DEFAULT_KERNEL_HEADERS
+ 	default "3.19.8"	if BR2_KERNEL_HEADERS_3_19
+ 	default "4.0.9"		if BR2_KERNEL_HEADERS_4_0
+ 	default "4.1.4"		if BR2_KERNEL_HEADERS_4_1
++	default "4.2.5"		if BR2_KERNEL_HEADERS_4_2
+ 	default BR2_DEFAULT_KERNEL_VERSION if BR2_KERNEL_HEADERS_VERSION
