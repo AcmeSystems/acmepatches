@@ -898,7 +898,7 @@ index 0000000..3bf67c9
 +CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/acme-arietta_defconfig b/arch/arm/configs/acme-arietta_defconfig
 new file mode 100644
-index 0000000..3bf67c9
+index 0000000..c64c8cb
 --- /dev/null
 +++ b/arch/arm/configs/acme-arietta_defconfig
 @@ -0,0 +1,207 @@
@@ -1057,7 +1057,7 @@ index 0000000..3bf67c9
 +CONFIG_USB_GADGET=y
 +CONFIG_USB_AT91=y
 +CONFIG_USB_ATMEL_USBA=y
-+CONFIG_USB_G_SERIAL=y
++CONFIG_USB_ETH=y
 +CONFIG_MMC=y
 +CONFIG_MMC_ATMELMCI=y
 +CONFIG_MMC_SPI=y
