@@ -685,10 +685,10 @@ index 0000000..f376b05
 +CONFIG_CRYPTO_DEV_ATMEL_SHA=y
 diff --git a/arch/arm/configs/acme-aria_defconfig b/arch/arm/configs/acme-aria_defconfig
 new file mode 100644
-index 0000000..6e9776e
+index 0000000..3bf67c9
 --- /dev/null
 +++ b/arch/arm/configs/acme-aria_defconfig
-@@ -0,0 +1,208 @@
+@@ -0,0 +1,207 @@
 +# CONFIG_LOCALVERSION_AUTO is not set
 +# CONFIG_SWAP is not set
 +CONFIG_SYSVIPC=y
@@ -705,7 +705,6 @@ index 0000000..6e9776e
 +CONFIG_SLAB=y
 +CONFIG_MODULES=y
 +CONFIG_MODULE_UNLOAD=y
-+# CONFIG_LBDAF is not set
 +# CONFIG_BLK_DEV_BSG is not set
 +# CONFIG_IOSCHED_DEADLINE is not set
 +# CONFIG_IOSCHED_CFQ is not set
@@ -899,10 +898,10 @@ index 0000000..6e9776e
 +CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/acme-arietta_defconfig b/arch/arm/configs/acme-arietta_defconfig
 new file mode 100644
-index 0000000..6e9776e
+index 0000000..3bf67c9
 --- /dev/null
 +++ b/arch/arm/configs/acme-arietta_defconfig
-@@ -0,0 +1,208 @@
+@@ -0,0 +1,207 @@
 +# CONFIG_LOCALVERSION_AUTO is not set
 +# CONFIG_SWAP is not set
 +CONFIG_SYSVIPC=y
@@ -919,7 +918,6 @@ index 0000000..6e9776e
 +CONFIG_SLAB=y
 +CONFIG_MODULES=y
 +CONFIG_MODULE_UNLOAD=y
-+# CONFIG_LBDAF is not set
 +# CONFIG_BLK_DEV_BSG is not set
 +# CONFIG_IOSCHED_DEADLINE is not set
 +# CONFIG_IOSCHED_CFQ is not set
