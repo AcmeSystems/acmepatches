@@ -1118,7 +1118,7 @@ index 0000000..2f355bd
 +CONFIG_FONT_ACORN_8x8=y
 +CONFIG_FONT_MINI_4x6=y
 diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index f94201b..7a6ab5f 100644
+index f94201b..29020a3 100644
 --- a/drivers/gpu/drm/panel/panel-simple.c
 +++ b/drivers/gpu/drm/panel/panel-simple.c
 @@ -1036,6 +1036,81 @@ static const struct panel_desc shelly_sca07010_bfn_lnn = {
@@ -1190,7 +1190,7 @@ index f94201b..7a6ab5f 100644
 +};
 +
 +static const struct panel_desc acme_70inch = {
-+	.modes = &acme_50inch_mode,
++	.modes = &acme_70inch_mode,
 +	.num_modes = 1,
 +	.bpc = 8,
 +	.size = {
