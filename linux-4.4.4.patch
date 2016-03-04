@@ -902,7 +902,7 @@ index 0000000..2f355bd
 +CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/acme-arietta_defconfig b/arch/arm/configs/acme-arietta_defconfig
 new file mode 100644
-index 0000000..2f355bd
+index 0000000..664428f
 --- /dev/null
 +++ b/arch/arm/configs/acme-arietta_defconfig
 @@ -0,0 +1,211 @@
@@ -953,7 +953,6 @@ index 0000000..2f355bd
 +# CONFIG_INET_XFRM_MODE_TUNNEL is not set
 +# CONFIG_INET_XFRM_MODE_BEET is not set
 +# CONFIG_INET_DIAG is not set
-+CONFIG_IPV6=y
 +# CONFIG_INET6_XFRM_MODE_TRANSPORT is not set
 +# CONFIG_INET6_XFRM_MODE_TUNNEL is not set
 +# CONFIG_INET6_XFRM_MODE_BEET is not set
@@ -1032,6 +1031,7 @@ index 0000000..2f355bd
 +CONFIG_GPIO_SYSFS=y
 +CONFIG_W1=y
 +CONFIG_W1_MASTER_GPIO=y
++CONFIG_W1_SLAVE_THERM=y
 +CONFIG_POWER_SUPPLY=y
 +CONFIG_POWER_RESET=y
 +# CONFIG_HWMON is not set
