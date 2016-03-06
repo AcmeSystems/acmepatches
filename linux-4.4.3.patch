@@ -1,6 +1,6 @@
 diff --git a/arch/arm/boot/dts/acme-acqua.dts b/arch/arm/boot/dts/acme-acqua.dts
 new file mode 100644
-index 0000000..2cf1821
+index 0000000..5d7bff2
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-acqua.dts
 @@ -0,0 +1,137 @@
@@ -20,7 +20,7 @@ index 0000000..2cf1821
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait";
++		bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootdelay=1 consoleblank=0";
 +	};
 +
 +	memory {
@@ -143,7 +143,7 @@ index 0000000..2cf1821
 +};
 diff --git a/arch/arm/boot/dts/acme-aria.dts b/arch/arm/boot/dts/acme-aria.dts
 new file mode 100644
-index 0000000..6449495
+index 0000000..64e3d60
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-aria.dts
 @@ -0,0 +1,146 @@
@@ -165,7 +165,7 @@ index 0000000..6449495
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait";
++		bootargs = "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootdelay=1";
 +	};
 +
 +	memory {
@@ -295,7 +295,7 @@ index 0000000..6449495
 +};
 diff --git a/arch/arm/boot/dts/acme-arietta.dts b/arch/arm/boot/dts/acme-arietta.dts
 new file mode 100644
-index 0000000..20af016
+index 0000000..20161b2
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-arietta.dts
 @@ -0,0 +1,168 @@
@@ -317,7 +317,7 @@ index 0000000..20af016
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait";
++		bootargs = "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootdelay=1";
 +	};
 +
 +	memory {
@@ -469,7 +469,7 @@ index 0000000..20af016
 +};
 diff --git a/arch/arm/configs/acme-acqua_defconfig b/arch/arm/configs/acme-acqua_defconfig
 new file mode 100644
-index 0000000..f376b05
+index 0000000..b43ab3c
 --- /dev/null
 +++ b/arch/arm/configs/acme-acqua_defconfig
 @@ -0,0 +1,210 @@
@@ -501,7 +501,7 @@ index 0000000..f376b05
 +CONFIG_ZBOOT_ROM_TEXT=0x0
 +CONFIG_ZBOOT_ROM_BSS=0x0
 +CONFIG_ARM_APPENDED_DTB=y
-+CONFIG_CMDLINE="console=ttyS0,115200 initrd=0x21100000,25165824 root=/dev/ram0 rw"
++CONFIG_CMDLINE=""
 +CONFIG_KEXEC=y
 +CONFIG_VFP=y
 +CONFIG_NEON=y
@@ -685,7 +685,7 @@ index 0000000..f376b05
 +CONFIG_CRYPTO_DEV_ATMEL_SHA=y
 diff --git a/arch/arm/configs/acme-aria_defconfig b/arch/arm/configs/acme-aria_defconfig
 new file mode 100644
-index 0000000..2f355bd
+index 0000000..cd15797
 --- /dev/null
 +++ b/arch/arm/configs/acme-aria_defconfig
 @@ -0,0 +1,211 @@
@@ -720,7 +720,7 @@ index 0000000..2f355bd
 +CONFIG_ZBOOT_ROM_BSS=0x0
 +CONFIG_ARM_APPENDED_DTB=y
 +CONFIG_ARM_ATAG_DTB_COMPAT=y
-+CONFIG_CMDLINE="console=ttyS0,115200 initrd=0x21100000,25165824 root=/dev/ram0 rw"
++CONFIG_CMDLINE=""
 +CONFIG_KEXEC=y
 +# CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
 +CONFIG_NET=y
@@ -902,7 +902,7 @@ index 0000000..2f355bd
 +CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/acme-arietta_defconfig b/arch/arm/configs/acme-arietta_defconfig
 new file mode 100644
-index 0000000..2f355bd
+index 0000000..cd15797
 --- /dev/null
 +++ b/arch/arm/configs/acme-arietta_defconfig
 @@ -0,0 +1,211 @@
@@ -937,7 +937,7 @@ index 0000000..2f355bd
 +CONFIG_ZBOOT_ROM_BSS=0x0
 +CONFIG_ARM_APPENDED_DTB=y
 +CONFIG_ARM_ATAG_DTB_COMPAT=y
-+CONFIG_CMDLINE="console=ttyS0,115200 initrd=0x21100000,25165824 root=/dev/ram0 rw"
++CONFIG_CMDLINE=""
 +CONFIG_KEXEC=y
 +# CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
 +CONFIG_NET=y
