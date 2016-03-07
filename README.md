@@ -6,4 +6,4 @@ Collection of patches to run Linux on Acme Systems boards
 * [Arietta G25](http://www.acmesystems.it/arietta)
 * [Aria G25](http://www.acmesystems.it/aria)
 
-(C) 2015 - Acme Systems srl
+(C) 2016 - Acme Systems srl
