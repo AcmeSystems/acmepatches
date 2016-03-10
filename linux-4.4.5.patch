@@ -20,7 +20,7 @@ index 0000000..646f4c7
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootdelay=1";
++		bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait";
 +	};
 +
 +	memory {
@@ -165,7 +165,7 @@ index 0000000..6449495
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait";
++		bootargs = "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait";
 +	};
 +
 +	memory {
@@ -317,7 +317,7 @@ index 0000000..20161b2
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootdelay=1";
++		bootargs = "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait";
 +	};
 +
 +	memory {
