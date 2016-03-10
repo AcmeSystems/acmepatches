@@ -1,0 +1,102 @@
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index f97b73e..4eff651 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -1096,6 +1096,81 @@ static const struct panel_desc shelly_sca07010_bfn_lnn = {
+ 	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
+ };
+ 
++static const struct drm_display_mode acme_43inch_mode = {
++	.clock = 9000,
++	.hdisplay = 480,
++	.hsync_start = 480 + 2,
++	.hsync_end = 480 + 2 + 41,
++	.htotal = 480 + 2 + 41 + 2,
++	.vdisplay = 272,
++	.vsync_start = 272 + 2,
++	.vsync_end = 272 + 2 + 11,
++	.vtotal = 272 + 2 + 11 + 2,
++	.vrefresh = 60,
++	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
++};
++
++static const struct panel_desc acme_43inch = {
++	.modes = &acme_43inch_mode,
++	.num_modes = 1,
++	.bpc = 8,
++	.size = {
++		.width = 95,
++		.height = 54,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
++};
++
++static const struct drm_display_mode acme_50inch_mode = {
++	.clock = 33300,
++	.hdisplay = 800,
++	.hsync_start = 800 + 1,
++	.hsync_end = 800 + 1 + 64,
++	.htotal = 800 + 1 + 64 + 64,
++	.vdisplay = 480,
++	.vsync_start = 480 + 1,
++	.vsync_end = 480 + 1 + 23,
++	.vtotal = 480 + 1 + 23 + 22,
++	.vrefresh = 60,
++	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
++};
++
++static const struct panel_desc acme_50inch = {
++	.modes = &acme_50inch_mode,
++	.num_modes = 1,
++	.bpc = 8,
++	.size = {
++		.width = 152,
++		.height = 91,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
++};
++
++static const struct drm_display_mode acme_70inch_mode = {
++	.clock = 33300,
++	.hdisplay = 800,
++	.hsync_start = 800 + 1,
++	.hsync_end = 800 + 1 + 64,
++	.htotal = 800 + 1 + 64 + 64,
++	.vdisplay = 480,
++	.vsync_start = 480 + 1,
++	.vsync_end = 480 + 1 + 23,
++	.vtotal = 480 + 1 + 23 + 22,
++	.vrefresh = 60,
++	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
++};
++
++static const struct panel_desc acme_70inch = {
++	.modes = &acme_70inch_mode,
++	.num_modes = 1,
++	.bpc = 8,
++	.size = {
++		.width = 152,
++		.height = 91,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
++};
++
+ static const struct of_device_id platform_of_match[] = {
+ 	{
+ 		.compatible = "ampire,am800480r3tmqwa1h",
+@@ -1191,6 +1266,15 @@ static const struct of_device_id platform_of_match[] = {
+ 		.compatible = "shelly,sca07010-bfn-lnn",
+ 		.data = &shelly_sca07010_bfn_lnn,
+ 	}, {
++		.compatible = "acme,43inch",
++		.data = &acme_43inch,
++	}, {
++		.compatible = "acme,50inch",
++		.data = &acme_50inch,
++	}, {
++		.compatible = "acme,70inch",
++		.data = &acme_70inch,
++	}, {
+ 		/* sentinel */
+ 	}
+ };
