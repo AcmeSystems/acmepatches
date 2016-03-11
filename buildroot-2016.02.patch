@@ -106,14 +106,13 @@ index 0000000..4017aef
 +/dev/mmcblk0p1 /boot vfat noatime 0 1
 diff --git a/board/acmesystems/acme-arietta/rootfs_overlay/etc/network/interfaces b/board/acmesystems/acme-arietta/rootfs_overlay/etc/network/interfaces
 new file mode 100644
-index 0000000..b70bcbd
+index 0000000..5bb2121
 --- /dev/null
 +++ b/board/acmesystems/acme-arietta/rootfs_overlay/etc/network/interfaces
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,14 @@
 +auto lo
 +iface lo inet loopback
 +
-+pre-up modprobe g_ether
 +auto usb0
 +iface usb0 inet static
 +	address 192.168.10.10
