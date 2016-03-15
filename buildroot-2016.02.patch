@@ -1,3 +1,6 @@
+diff --git a/board/acmesystems/acme-acqua/rootfs_overlay/boot/tmp b/board/acmesystems/acme-acqua/rootfs_overlay/boot/tmp
+new file mode 100644
+index 0000000..e69de29
 diff --git a/board/acmesystems/acme-acqua/rootfs_overlay/etc/fstab b/board/acmesystems/acme-acqua/rootfs_overlay/etc/fstab
 new file mode 100644
 index 0000000..4017aef
@@ -44,6 +47,9 @@ index 0000000..b907c57
 +#    pre-up wpa_supplicant -i wlan0 -c /boot/wpa_supplicant.conf -B
 +#    post-down killall -q wpa_supplicant
 +
+diff --git a/board/acmesystems/acme-aria/rootfs_overlay/boot/tmp b/board/acmesystems/acme-aria/rootfs_overlay/boot/tmp
+new file mode 100644
+index 0000000..e69de29
 diff --git a/board/acmesystems/acme-aria/rootfs_overlay/etc/fstab b/board/acmesystems/acme-aria/rootfs_overlay/etc/fstab
 new file mode 100644
 index 0000000..4017aef
@@ -89,6 +95,9 @@ index 0000000..03bdfaa
 +#    wireless-essid any
 +#    pre-up wpa_supplicant -i wlan0 -c /boot/wpa_supplicant.conf -B
 +#    post-down killall -q wpa_supplicant
+diff --git a/board/acmesystems/acme-arietta/rootfs_overlay/boot/tmp b/board/acmesystems/acme-arietta/rootfs_overlay/boot/tmp
+new file mode 100644
+index 0000000..e69de29
 diff --git a/board/acmesystems/acme-arietta/rootfs_overlay/etc/fstab b/board/acmesystems/acme-arietta/rootfs_overlay/etc/fstab
 new file mode 100644
 index 0000000..4017aef
@@ -124,6 +133,9 @@ index 0000000..5bb2121
 +    wireless-essid any
 +    pre-up wpa_supplicant -i wlan0 -c /boot/wpa_supplicant.conf -B
 +    post-down killall -q wpa_supplicant
+diff --git a/board/acmesystems/acme-foxg20/boot/tmp b/board/acmesystems/acme-foxg20/boot/tmp
+new file mode 100644
+index 0000000..e69de29
 diff --git a/board/acmesystems/acme-foxg20/rootfs_overlay/etc/fstab b/board/acmesystems/acme-foxg20/rootfs_overlay/etc/fstab
 new file mode 100644
 index 0000000..4017aef
