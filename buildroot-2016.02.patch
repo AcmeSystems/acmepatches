@@ -412,7 +412,7 @@ index 0000000..9082e9d
 +BR2_PACKAGE_WPA_SUPPLICANT_AP_SUPPORT=y
 diff --git a/configs/acme-foxg20_defconfig b/configs/acme-foxg20_defconfig
 new file mode 100644
-index 0000000..46b558e
+index 0000000..6d0327c
 --- /dev/null
 +++ b/configs/acme-foxg20_defconfig
 @@ -0,0 +1,12 @@
@@ -421,7 +421,7 @@ index 0000000..46b558e
 +BR2_DEFAULT_KERNEL_VERSION="4.4.5"
 +BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_4=y
 +BR2_TARGET_GENERIC_ROOT_PASSWD="acmesystems"
-+BR2_ROOTFS_OVERLAY="$(TOPDIR)/board/acmesystems/acme-aria/rootfs_overlay"
++BR2_ROOTFS_OVERLAY="$(TOPDIR)/board/acmesystems/acme-foxg20/rootfs_overlay"
 +BR2_PACKAGE_LINUX_FIRMWARE=y
 +BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT2XX=y
 +BR2_PACKAGE_DROPBEAR=y
