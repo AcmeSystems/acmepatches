@@ -469,10 +469,10 @@ index 0000000..e85ac4c
 +};
 diff --git a/arch/arm/boot/dts/acme-foxg20.dts b/arch/arm/boot/dts/acme-foxg20.dts
 new file mode 100644
-index 0000000..dd3eb75
+index 0000000..b16afb6
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-foxg20.dts
-@@ -0,0 +1,167 @@
+@@ -0,0 +1,177 @@
 +/*
 + * acme-foxg20.dts - Device Tree file for FOX Board G20
 + *
@@ -548,15 +548,10 @@ index 0000000..dd3eb75
 +			};
 +
 +			usart1: serial@fffb4000 {
-+				status = "disabled";
++				status = "okay";
 +			};
 +
 +			usart2: serial@fffb8000 {
-+				status = "disabled";
-+			};
-+
-+			macb0: ethernet@fffc4000 {
-+				phy-mode = "rmii";
 +				status = "okay";
 +			};
 +
@@ -572,8 +567,23 @@ index 0000000..dd3eb75
 +				status = "disabled";
 +			};
 +
++			macb0: ethernet@fffc4000 {
++				phy-mode = "rmii";
++				status = "okay";
++			};
++
++
 +			dbgu: serial@fffff200 {
 +				status = "okay";
++			};
++
++			pwm {
++				compatible = "atmel,tcb-pwm";
++				#pwm-cells = <2>;
++				tc-block = <1>;
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_tcb0_tioa0>;
++				status = "disabled";
 +			};
 +
 +			pinctrl@fffff400 {
@@ -601,7 +611,7 @@ index 0000000..dd3eb75
 +			};
 +
 +			watchdog@fffffd40 {
-+				status = "disabled";
++				status = "okay";
 +			};
 +		};
 +
@@ -615,7 +625,7 @@ index 0000000..dd3eb75
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&pinctrl_i2c0>;
 +		i2c-gpio,delay-us = <5>;	/* ~85 kHz */
-+		status = "disabled";
++		status = "okay";
 +	};
 +
 +	leds {
@@ -1292,10 +1302,10 @@ index 0000000..284eb2f
 +CONFIG_FONT_MINI_4x6=y
 diff --git a/arch/arm/configs/acme-foxg20_defconfig b/arch/arm/configs/acme-foxg20_defconfig
 new file mode 100644
-index 0000000..cd15797
+index 0000000..e51e3ea
 --- /dev/null
 +++ b/arch/arm/configs/acme-foxg20_defconfig
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,209 @@
 +# CONFIG_LOCALVERSION_AUTO is not set
 +# CONFIG_SWAP is not set
 +CONFIG_SYSVIPC=y
@@ -1327,7 +1337,6 @@ index 0000000..cd15797
 +CONFIG_ZBOOT_ROM_BSS=0x0
 +CONFIG_ARM_APPENDED_DTB=y
 +CONFIG_ARM_ATAG_DTB_COMPAT=y
-+CONFIG_CMDLINE=""
 +CONFIG_KEXEC=y
 +# CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
 +CONFIG_NET=y
@@ -1343,7 +1352,6 @@ index 0000000..cd15797
 +# CONFIG_INET_XFRM_MODE_TUNNEL is not set
 +# CONFIG_INET_XFRM_MODE_BEET is not set
 +# CONFIG_INET_DIAG is not set
-+CONFIG_IPV6=y
 +# CONFIG_INET6_XFRM_MODE_TRANSPORT is not set
 +# CONFIG_INET6_XFRM_MODE_TUNNEL is not set
 +# CONFIG_INET6_XFRM_MODE_BEET is not set
@@ -1426,6 +1434,7 @@ index 0000000..cd15797
 +CONFIG_POWER_RESET=y
 +# CONFIG_HWMON is not set
 +CONFIG_WATCHDOG=y
++CONFIG_AT91RM9200_WATCHDOG=y
 +CONFIG_AT91SAM9X_WATCHDOG=y
 +CONFIG_REGULATOR=y
 +CONFIG_REGULATOR_FIXED_VOLTAGE=y
@@ -1477,7 +1486,6 @@ index 0000000..cd15797
 +CONFIG_IIO=y
 +CONFIG_AT91_ADC=y
 +CONFIG_PWM=y
-+CONFIG_PWM_ATMEL=y
 +CONFIG_PWM_ATMEL_TCB=y
 +CONFIG_EXT4_FS=y
 +CONFIG_FANOTIFY=y
