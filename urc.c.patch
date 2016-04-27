@@ -1,0 +1,33 @@
+diff --git a/drivers/usb/core/urb.c b/drivers/usb/core/urb.c
+index 3d27477..d1b7e29 100644
+--- a/drivers/usb/core/urb.c
++++ b/drivers/usb/core/urb.c
+@@ -444,10 +444,11 @@ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
+ 	 */
+ 
+ 	/* Check that the pipe's type matches the endpoint's type */
+-	if (usb_pipetype(urb->pipe) != pipetypes[xfertype])
++/*	
++if (usb_pipetype(urb->pipe) != pipetypes[xfertype])
+ 		dev_WARN(&dev->dev, "BOGUS urb xfer, pipe %x != type %x\n",
+ 			usb_pipetype(urb->pipe), pipetypes[xfertype]);
+-
++*/
+ 	/* Check against a simple/standard policy */
+ 	allowed = (URB_NO_TRANSFER_DMA_MAP | URB_NO_INTERRUPT | URB_DIR_MASK |
+ 			URB_FREE_BUFFER);
+@@ -469,12 +470,12 @@ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
+ 		break;
+ 	}
+ 	allowed &= urb->transfer_flags;
+-
++#if 0
+ 	/* warn if submitter gave bogus flags */
+ 	if (allowed != urb->transfer_flags)
+ 		dev_WARN(&dev->dev, "BOGUS urb flags, %x --> %x\n",
+ 			urb->transfer_flags, allowed);
+-
++#endif
+ 	/*
+ 	 * Force periodic transfer intervals to be legal values that are
+ 	 * a power of two (so HCDs don't need to).
