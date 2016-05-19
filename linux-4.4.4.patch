@@ -20,7 +20,7 @@ index 0000000..2cf1821
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait";
++		bootargs = "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait consoleblank=0";
 +	};
 +
 +	memory {
