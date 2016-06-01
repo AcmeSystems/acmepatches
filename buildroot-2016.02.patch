@@ -181,6 +181,87 @@ index 0000000..03bdfaa
 +#    wireless-essid any
 +#    pre-up wpa_supplicant -i wlan0 -c /boot/wpa_supplicant.conf -B
 +#    post-down killall -q wpa_supplicant
+diff --git a/board/acmesystems/acme-xterm-01/rootfs_overlay/boot/tmp b/board/acmesystems/acme-xterm-01/rootfs_overlay/boot/tmp
+new file mode 100644
+index 0000000..e69de29
+diff --git a/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/fstab b/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/fstab
+new file mode 100644
+index 0000000..4017aef
+--- /dev/null
++++ b/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/fstab
+@@ -0,0 +1,9 @@
++# <file system>	<mount pt>	<type>	<options>	<dump>	<pass>
++/dev/root	/		ext2	rw,noauto	0	1
++proc		/proc		proc	defaults	0	0
++devpts		/dev/pts	devpts	defaults,gid=5,mode=620	0	0
++tmpfs		/dev/shm	tmpfs	mode=0777	0	0
++tmpfs		/tmp		tmpfs	mode=1777	0	0
++tmpfs		/run		tmpfs	mode=0755,nosuid,nodev	0	0
++sysfs		/sys		sysfs	defaults	0	0
++/dev/mmcblk0p1 /boot vfat noatime 0 1
+diff --git a/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/inittab b/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/inittab
+new file mode 100644
+index 0000000..78fab89
+--- /dev/null
++++ b/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/inittab
+@@ -0,0 +1,37 @@
++# /etc/inittab
++#
++# Copyright (C) 2001 Erik Andersen <andersen@codepoet.org>
++#
++# Note: BusyBox init doesn't support runlevels.  The runlevels field is
++# completely ignored by BusyBox init. If you want runlevels, use
++# sysvinit.
++#
++# Format for each entry: <id>:<runlevels>:<action>:<process>
++#
++# id        == tty to run on, or empty for /dev/console
++# runlevels == ignored
++# action    == one of sysinit, respawn, askfirst, wait, and once
++# process   == program to run
++
++# Startup the system
++::sysinit:/bin/mount -t proc proc /proc
++::sysinit:/bin/mount -o remount,rw /
++::sysinit:/bin/mkdir -p /dev/pts
++::sysinit:/bin/mkdir -p /dev/shm
++::sysinit:/bin/mount -a
++::sysinit:/bin/hostname -F /etc/hostname
++# now run any rc scripts
++::sysinit:/etc/init.d/rcS
++
++# Put a getty on the serial port
++console::respawn:/sbin/getty -L  console 0 vt100 # GENERIC_SERIAL
++tty1::respawn:/sbin/getty tty1 38400
++
++# Stuff to do for the 3-finger salute
++#::ctrlaltdel:/sbin/reboot
++
++# Stuff to do before rebooting
++::shutdown:/etc/init.d/rcK
++::shutdown:/sbin/swapoff -a
++::shutdown:/bin/umount -a -r
++
+diff --git a/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/network/interfaces b/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/network/interfaces
+new file mode 100644
+index 0000000..5bb2121
+--- /dev/null
++++ b/board/acmesystems/acme-xterm-01/rootfs_overlay/etc/network/interfaces
+@@ -0,0 +1,14 @@
++auto lo
++iface lo inet loopback
++
++auto usb0
++iface usb0 inet static
++	address 192.168.10.10
++	netmask 255.255.255.0
++	gateway 192.168.10.20
++
++auto wlan0
++iface wlan0 inet dhcp
++    wireless-essid any
++    pre-up wpa_supplicant -i wlan0 -c /boot/wpa_supplicant.conf -B
++    post-down killall -q wpa_supplicant
 diff --git a/board/acmesystems/aria-g25/readme.txt b/board/acmesystems/aria-g25/readme.txt
 deleted file mode 100644
 index 734ccd2..0000000
@@ -422,6 +503,24 @@ index 0000000..6d0327c
 +BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_4=y
 +BR2_TARGET_GENERIC_ROOT_PASSWD="acmesystems"
 +BR2_ROOTFS_OVERLAY="$(TOPDIR)/board/acmesystems/acme-foxg20/rootfs_overlay"
++BR2_PACKAGE_LINUX_FIRMWARE=y
++BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT2XX=y
++BR2_PACKAGE_DROPBEAR=y
++BR2_PACKAGE_IW=y
++BR2_PACKAGE_WPA_SUPPLICANT=y
++BR2_PACKAGE_WPA_SUPPLICANT_AP_SUPPORT=y
+diff --git a/configs/acme-xterm-01_defconfig b/configs/acme-xterm-01_defconfig
+new file mode 100644
+index 0000000..2f39307
+--- /dev/null
++++ b/configs/acme-xterm-01_defconfig
+@@ -0,0 +1,12 @@
++BR2_arm=y
++BR2_KERNEL_HEADERS_VERSION=y
++BR2_DEFAULT_KERNEL_VERSION="4.4.11"
++BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_4=y
++BR2_TARGET_GENERIC_ROOT_PASSWD="acmesystems"
++BR2_ROOTFS_OVERLAY="$(TOPDIR)/board/acmesystems/acme-xterm-01/rootfs_overlay"
 +BR2_PACKAGE_LINUX_FIRMWARE=y
 +BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT2XX=y
 +BR2_PACKAGE_DROPBEAR=y
