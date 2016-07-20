@@ -1,6 +1,6 @@
 diff --git a/arch/arm/boot/dts/acme-acqua.dts b/arch/arm/boot/dts/acme-acqua.dts
 new file mode 100644
-index 0000000..5ddf910
+index 0000000..5d38766
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-acqua.dts
 @@ -0,0 +1,186 @@
@@ -181,7 +181,7 @@ index 0000000..5ddf910
 +        /* compatible = "acme,50inch", "simple-panel"; */
 +        /* compatible = "acme,70inch", "simple-panel"; */
 +        
-+        status = "none";
++        status = "disabled";
 +
 +        port@0 {
 +            panel_input: endpoint@0 {
@@ -700,7 +700,7 @@ index 0000000..b16afb6
 +	};
 +};
 diff --git a/arch/arm/boot/dts/sama5d3xmb.dtsi b/arch/arm/boot/dts/sama5d3xmb.dtsi
-index 8901042..8cdde24 100644
+index 8901042..7ae28e3 100644
 --- a/arch/arm/boot/dts/sama5d3xmb.dtsi
 +++ b/arch/arm/boot/dts/sama5d3xmb.dtsi
 @@ -24,15 +24,6 @@
@@ -719,11 +719,13 @@ index 8901042..8cdde24 100644
  
  			ssc0: ssc@f0008000 {
  				atmel,clk-from-rk-pin;
-@@ -79,7 +70,7 @@
+@@ -78,8 +69,8 @@
+ 			usart1: serial@f0020000 {
  				dmas = <0>, <0>;	/*  Do not use DMA for usart1 */
  				pinctrl-names = "default";
- 				pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>;
+-				pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>;
 -				status = "okay";
++				/* pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>; */
 +				status = "disabled";
  			};
  
@@ -1691,14 +1693,14 @@ index f97b73e..4eff651 100644
  	}
  };
 diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index d0e7dfc..547dad6 100644
+index d0e7dfc..57b0760 100644
 --- a/drivers/spi/spidev.c
 +++ b/drivers/spi/spidev.c
 @@ -695,6 +695,7 @@ static struct class *spidev_class;
  static const struct of_device_id spidev_dt_ids[] = {
  	{ .compatible = "rohm,dh2228fv" },
  	{ .compatible = "lineartechnology,ltc2488" },
-+//	{ .compatible = "spidev" },
++	{ .compatible = "spidev" },
  	{},
  };
  MODULE_DEVICE_TABLE(of, spidev_dt_ids);
