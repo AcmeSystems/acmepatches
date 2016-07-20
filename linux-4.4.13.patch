@@ -1,9 +1,9 @@
 diff --git a/arch/arm/boot/dts/acme-acqua.dts b/arch/arm/boot/dts/acme-acqua.dts
 new file mode 100644
-index 0000000..afc3e55
+index 0000000..5ddf910
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-acqua.dts
-@@ -0,0 +1,164 @@
+@@ -0,0 +1,186 @@
 +/*
 + * acme-acqua.dts - Device Tree file for Acqua A5
 + *
@@ -20,7 +20,7 @@ index 0000000..afc3e55
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
-+		bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0";
++		bootargs = "mem=512M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0";
 +	};
 +
 +	memory {
@@ -40,7 +40,7 @@ index 0000000..afc3e55
 +	ahb {
 +		apb {
 +			hlcdc: hlcdc@f0030000 {
-+				status = "okay";
++				status = "disabled";
 +				hlcdc-display-controller {
 +					pinctrl-names = "default";
 +					pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb888_alt>;
@@ -64,8 +64,35 @@ index 0000000..afc3e55
 +
 +			spi0: spi@f0004000 {
 +				status = "disabled";
-+				/* cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <&pioD 15>, <&pioD 16>;
++				/*cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <&pioD 15>, <&pioD 16>;*/
++				cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <&pioD 15>, <0>;
 +
++				device@0 {
++					compatible = "spidev";
++					spi-max-frequency = <50000000>;     // 50 MHz
++					reg = <0>;
++				};
++				device@1 {
++					compatible = "spidev";
++					spi-max-frequency = <5000000>;      // 5 MHz
++					reg = <1>;
++				};
++				device@2 {
++					compatible = "spidev";
++					spi-max-frequency = <5000000>;      // 5 MHz
++					reg = <2>;
++				};
++				/*device@3 {
++					compatible = "spidev";
++					spi-max-frequency = <5000000>;      // 5 MHz
++					reg = <3>;
++				};*/
++			};
++
++			spi1: spi@f8008000 {
++				status = "disabled";
++				cs-gpios = <&pioC 25 0>, <&pioC 26 0>, <&pioC 27 0>, <&pioC 28 0>;
++				
 +				device@0 {
 +					compatible = "spidev";
 +					spi-max-frequency = <50000000>;     // 50 MHz
@@ -85,12 +112,7 @@ index 0000000..afc3e55
 +					compatible = "spidev";
 +					spi-max-frequency = <5000000>;      // 5 MHz
 +					reg = <3>;
-+				}; */
-+			};
-+
-+			spi1: spi@f8008000 {
-+				status = "disabled";
-+				/* cs-gpios = <&pioC 25 0>, <&pioC 26 0>, <&pioC 27 0>, <&pioC 28 0>; */
++				};
 +			};
 +
 +			ssc0: ssc@f0008000 {
@@ -156,10 +178,10 @@ index 0000000..afc3e55
 +
 +    panel: panel {
 +        /* compatible = "acme,43inch", "simple-panel"; */
-+        compatible = "acme,50inch", "simple-panel";
++        /* compatible = "acme,50inch", "simple-panel"; */
 +        /* compatible = "acme,70inch", "simple-panel"; */
 +        
-+        status = "okay";
++        status = "none";
 +
 +        port@0 {
 +            panel_input: endpoint@0 {
@@ -678,7 +700,7 @@ index 0000000..b16afb6
 +	};
 +};
 diff --git a/arch/arm/boot/dts/sama5d3xmb.dtsi b/arch/arm/boot/dts/sama5d3xmb.dtsi
-index 8901042..d5fa8a9 100644
+index 8901042..8cdde24 100644
 --- a/arch/arm/boot/dts/sama5d3xmb.dtsi
 +++ b/arch/arm/boot/dts/sama5d3xmb.dtsi
 @@ -24,15 +24,6 @@
@@ -697,6 +719,15 @@ index 8901042..d5fa8a9 100644
  
  			ssc0: ssc@f0008000 {
  				atmel,clk-from-rk-pin;
+@@ -79,7 +70,7 @@
+ 				dmas = <0>, <0>;	/*  Do not use DMA for usart1 */
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>;
+-				status = "okay";
++				status = "disabled";
+ 			};
+ 
+ 			isi: isi@f0034000 {
 diff --git a/arch/arm/configs/acme-acqua_defconfig b/arch/arm/configs/acme-acqua_defconfig
 new file mode 100644
 index 0000000..15bac6e
@@ -1659,3 +1690,15 @@ index f97b73e..4eff651 100644
  		/* sentinel */
  	}
  };
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index d0e7dfc..547dad6 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -695,6 +695,7 @@ static struct class *spidev_class;
+ static const struct of_device_id spidev_dt_ids[] = {
+ 	{ .compatible = "rohm,dh2228fv" },
+ 	{ .compatible = "lineartechnology,ltc2488" },
++//	{ .compatible = "spidev" },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, spidev_dt_ids);
