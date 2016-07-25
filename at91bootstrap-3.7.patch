@@ -62,7 +62,7 @@ index 0000000..cb5d543
 @@ -0,0 +1,3 @@
 +config CONFIG_LINUX_KERNEL_ARG_STRING
 +	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_AT91SAM9X5EK && !CONFIG_SDCARD
-+	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9X5ARIA && CONFIG_SDCARD
++	default "" if CONFIG_AT91SAM9X5ARIA && CONFIG_SDCARD
 diff --git a/board/at91sam9x5_aria/aria-128m_defconfig b/board/at91sam9x5_aria/aria-128m_defconfig
 new file mode 100644
 index 0000000..6510274
@@ -896,7 +896,7 @@ index 0000000..1947124
 @@ -0,0 +1,3 @@
 +config CONFIG_LINUX_KERNEL_ARG_STRING
 +	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_AT91SAM9X5EK && !CONFIG_SDCARD
-+	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9X5EK && CONFIG_SDCARD
++	default "" if CONFIG_AT91SAM9X5EK && CONFIG_SDCARD
 diff --git a/board/at91sam9x5_arietta/arietta-128m_defconfig b/board/at91sam9x5_arietta/arietta-128m_defconfig
 new file mode 100644
 index 0000000..db60d8a
@@ -1727,7 +1727,7 @@ index 0000000..6c8779d
 @@ -0,0 +1,3 @@
 +config CONFIG_LINUX_KERNEL_ARG_STRING
 +	default "console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_SAMA5D3_ACQUA && !CONFIG_SDCARD
-+	default "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootdelay=1" if CONFIG_SAMA5D3_ACQUA && CONFIG_SDCARD
++	default "" if CONFIG_SAMA5D3_ACQUA && CONFIG_SDCARD
 diff --git a/board/sama5d3_acqua/acqua-256m_defconfig b/board/sama5d3_acqua/acqua-256m_defconfig
 new file mode 100644
 index 0000000..0370c0f
