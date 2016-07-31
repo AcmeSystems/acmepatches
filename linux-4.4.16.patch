@@ -1,11 +1,11 @@
 diff --git a/arch/arm/boot/dts/acme-acqua-multicon.dts b/arch/arm/boot/dts/acme-acqua-multicon.dts
 new file mode 100644
-index 0000000..4b89b4a
+index 0000000..cb794d6
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-acqua-multicon.dts
-@@ -0,0 +1,327 @@
+@@ -0,0 +1,366 @@
 +/*
-+ * acme-muticon.dts - Device Tree file for Multicon Touch
++ * acme-acqua-multicon.dts - Device Tree file for Multicon Touch
 + *
 + * Sergio Tanzilli - tanzilli@acmesystems.it
 + *
@@ -51,6 +51,13 @@ index 0000000..4b89b4a
 +							remote-endpoint = <&panel_input>;
 +						};
 +					};
++				};
++				
++				hlcdc_pwm: hlcdc-pwm {
++					compatible = "atmel,hlcdc-pwm";
++					pinctrl-names = "default";
++					pinctrl-0 = <&pinctrl_lcd_pwm>;
++					#pwm-cells = <3>;
 +				};
 +			};
 +
@@ -166,30 +173,46 @@ index 0000000..4b89b4a
 +				status = "okay";
 +			};
 +			
++			/* /dev/ttyS1 */
++			/* Seriale connessa allo Yarm*/
 +			usart0: serial@f001c000 {
 +				pinctrl-0 = <&pinctrl_usart0>;
-+				status = "disabled";
++				status = "okay";
 +			};
 +
++			/* /dev/ttyS2 */
 +			usart1: serial@f0020000 {
 +				pinctrl-0 = <&pinctrl_usart1>; 
 +				status = "disabled";
 +			};
 +
++			/* /dev/ttyS3 */
++			/* Seconda porta seriale su debug port (J4)*/
 +			usart2: serial@f8020000 {
 +				pinctrl-0 = <&pinctrl_usart2>;
-+				status = "disabled";
++				status = "okay";
 +			};
 +
++			/* /dev/ttyS4 */
 +			usart3: serial@f8024000 {
 +				pinctrl-0 = <&pinctrl_usart3>;
-+				status = "disabled";
++				status = "okay";
 +			};
 +
++			/* /dev/ttyS5 */
++			/* Seriale 0 su J6*/
 +			uart0: serial@f0024000 {
 +				pinctrl-0 = <&pinctrl_uart0>;
-+				status = "disabled";
++				status = "okay";
 +			};
++
++			/* /dev/ttyS6 */
++			/* Seriale 1 su J6*/
++			uart1: serial@f8028000 {
++				pinctrl-0 = <&pinctrl_uart1>;
++				status = "okay";
++			};
++
 +
 +			adc0: adc@f8018000 {
 +				atmel,adc-ts-wires = <4>;
@@ -314,13 +337,29 @@ index 0000000..4b89b4a
 +			gpios = <&pioE 6 GPIO_ACTIVE_LOW>;
 +			linux,default-trigger = "mmc0";
 +		};
++		
++		wifi {
++			label = "wifi";
++			gpios = <&pioE 31 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "gpio";
++			default-state = "on";
++		};
 +
++	};
++
++	backlight: backlight {
++		compatible = "pwm-backlight";
++		pwms = <&hlcdc_pwm 0 50000 0>;
++		brightness-levels = <0 4 8 16 32 64 128 255>;
++		default-brightness-level = <6>;
++		status = "okay";
 +	};
 +
 +	panel: panel {
 +		compatible = "acme,43inch", "simple-panel";
 +		/* compatible = "acme,50inch", "simple-panel"; */
 +		/* compatible = "acme,70inch", "simple-panel"; */
++		backlight = <&backlight>;
 +
 +		status = "okay";
 +
@@ -1065,10 +1104,10 @@ index 8901042..7ae28e3 100644
  			isi: isi@f0034000 {
 diff --git a/arch/arm/configs/acme-acqua_defconfig b/arch/arm/configs/acme-acqua_defconfig
 new file mode 100644
-index 0000000..15bac6e
+index 0000000..3b0be50
 --- /dev/null
 +++ b/arch/arm/configs/acme-acqua_defconfig
-@@ -0,0 +1,204 @@
+@@ -0,0 +1,207 @@
 +# CONFIG_LOCALVERSION_AUTO is not set
 +# CONFIG_SWAP is not set
 +CONFIG_SYSVIPC=y
@@ -1170,7 +1209,8 @@ index 0000000..15bac6e
 +CONFIG_RT2500USB=y
 +CONFIG_RT73USB=y
 +CONFIG_RT2800USB=y
-+CONFIG_RT2800USB_RT3573=y
++CONFIG_RT2800USB_RT53XX=y
++CONFIG_RT2800USB_RT55XX=y
 +# CONFIG_RTL_CARDS is not set
 +CONFIG_INPUT_EVDEV=y
 +CONFIG_KEYBOARD_GPIO=y
@@ -1211,6 +1251,7 @@ index 0000000..15bac6e
 +# CONFIG_BACKLIGHT_GENERIC is not set
 +CONFIG_BACKLIGHT_PWM=y
 +CONFIG_FRAMEBUFFER_CONSOLE=y
++CONFIG_LOGO=y
 +CONFIG_SOUND=y
 +CONFIG_SND=y
 +CONFIG_SND_SOC=y
@@ -1219,6 +1260,7 @@ index 0000000..15bac6e
 +CONFIG_USB_EHCI_HCD=y
 +CONFIG_USB_OHCI_HCD=y
 +CONFIG_USB_ACM=y
++CONFIG_USB_WDM=y
 +CONFIG_USB_STORAGE=y
 +CONFIG_USB_SERIAL=y
 +CONFIG_USB_SERIAL_GENERIC=y
