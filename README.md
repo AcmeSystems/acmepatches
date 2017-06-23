@@ -10,7 +10,7 @@ Collection of patches compile Linux on the following Acme Systems boards
 The step by step procedure to compiler the Linux Kernel is
 available on: https://www.acmesystems.it/tutorials.
 
-##How to create a patch 
+## How to create a patch 
 
 	git checkout acme
 	git diff master > acme.patch
