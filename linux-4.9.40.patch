@@ -1,0 +1,145 @@
+diff --git a/arch/arm/boot/dts/sama5d3xmb.dtsi b/arch/arm/boot/dts/sama5d3xmb.dtsi
+index 6d252ad..fb2dad3 100644
+--- a/arch/arm/boot/dts/sama5d3xmb.dtsi
++++ b/arch/arm/boot/dts/sama5d3xmb.dtsi
+@@ -24,15 +24,6 @@
+ 				};
+ 			};
+ 
+-			spi0: spi@f0004000 {
+-				dmas = <0>, <0>;	/*  Do not use DMA for spi0 */
+-
+-				m25p80@0 {
+-					compatible = "atmel,at25df321a";
+-					spi-max-frequency = <50000000>;
+-					reg = <0>;
+-				};
+-			};
+ 
+ 			ssc0: ssc@f0008000 {
+ 				atmel,clk-from-rk-pin;
+@@ -78,8 +69,8 @@
+ 			usart1: serial@f0020000 {
+ 				dmas = <0>, <0>;	/*  Do not use DMA for usart1 */
+ 				pinctrl-names = "default";
+-				pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>;
+-				status = "okay";
++				/* pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>; */
++				status = "disabled";
+ 			};
+ 
+ 			isi: isi@f0034000 {
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 27cb424..fa3e999 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -1552,6 +1552,81 @@ static const struct panel_desc urt_umsh_8596md_parallel = {
+ 	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
+ };
+ 
++static const struct drm_display_mode acme_43inch_mode = {
++	.clock = 9000,
++	.hdisplay = 480,
++	.hsync_start = 480 + 2,
++	.hsync_end = 480 + 2 + 41,
++	.htotal = 480 + 2 + 41 + 2,
++	.vdisplay = 272,
++	.vsync_start = 272 + 2,
++	.vsync_end = 272 + 2 + 11,
++	.vtotal = 272 + 2 + 11 + 2,
++	.vrefresh = 60,
++	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
++};
++
++static const struct panel_desc acme_43inch = {
++	.modes = &acme_43inch_mode,
++	.num_modes = 1,
++	.bpc = 8,
++	.size = {
++		.width = 95,
++		.height = 54,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
++};
++
++static const struct drm_display_mode acme_50inch_mode = {
++	.clock = 33300,
++	.hdisplay = 800,
++	.hsync_start = 800 + 1,
++	.hsync_end = 800 + 1 + 64,
++	.htotal = 800 + 1 + 64 + 64,
++	.vdisplay = 480,
++	.vsync_start = 480 + 1,
++	.vsync_end = 480 + 1 + 23,
++	.vtotal = 480 + 1 + 23 + 22,
++	.vrefresh = 60,
++	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
++};
++
++static const struct panel_desc acme_50inch = {
++	.modes = &acme_50inch_mode,
++	.num_modes = 1,
++	.bpc = 8,
++	.size = {
++		.width = 152,
++		.height = 91,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
++};
++
++static const struct drm_display_mode acme_70inch_mode = {
++	.clock = 33300,
++	.hdisplay = 800,
++	.hsync_start = 800 + 1,
++	.hsync_end = 800 + 1 + 64,
++	.htotal = 800 + 1 + 64 + 64,
++	.vdisplay = 480,
++	.vsync_start = 480 + 1,
++	.vsync_end = 480 + 1 + 23,
++	.vtotal = 480 + 1 + 23 + 22,
++	.vrefresh = 60,
++	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
++};
++
++static const struct panel_desc acme_70inch = {
++	.modes = &acme_70inch_mode,
++	.num_modes = 1,
++	.bpc = 8,
++	.size = {
++		.width = 152,
++		.height = 91,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
++};
++
+ static const struct of_device_id platform_of_match[] = {
+ 	{
+ 		.compatible = "ampire,am800480r3tmqwa1h",
+@@ -1713,6 +1788,15 @@ static const struct of_device_id platform_of_match[] = {
+ 		.compatible = "urt,umsh-8596md-20t",
+ 		.data = &urt_umsh_8596md_parallel,
+ 	}, {
++		.compatible = "acme,43inch",
++		.data = &acme_43inch,
++	}, {
++		.compatible = "acme,50inch",
++		.data = &acme_50inch,
++	}, {
++		.compatible = "acme,70inch",
++		.data = &acme_70inch,
++	}, {
+ 		/* sentinel */
+ 	}
+ };
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index 2e05046..d780491 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -696,6 +696,7 @@ static struct class *spidev_class;
+ static const struct of_device_id spidev_dt_ids[] = {
+ 	{ .compatible = "rohm,dh2228fv" },
+ 	{ .compatible = "lineartechnology,ltc2488" },
++	{ .compatible = "spidev" },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, spidev_dt_ids);
