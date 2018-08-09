@@ -342,6 +342,93 @@ index 0000000..87c14ac
 +		pinctrl-0 = <&pinctrl_w1_0>;
 +	};
 +};
+diff --git a/arch/arm/boot/dts/acme-arietta-ds485.dts b/arch/arm/boot/dts/acme-arietta-ds485.dts
+new file mode 100755
+index 0000000..59cd58f
+--- /dev/null
++++ b/arch/arm/boot/dts/acme-arietta-ds485.dts
+@@ -0,0 +1,81 @@
++/* acme-arietta.dts - Device Tree file for Arietta G25 */
++/dts-v1/;
++#include "at91sam9g25.dtsi"
++/ {
++	model = "Acme Systems Arietta G25";
++	compatible = "acme,ariettag25", "atmel,at91sam9x5", "atmel,at91sam9";
++	aliases {
++		serial0 = &dbgu;
++	};
++	chosen {
++		stdout-path = "serial0:115200n8";
++		bootargs = "mem=256M  console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait";
++	};
++	memory {
++		reg = <0x20000000 0x8000000>;
++	};
++	clocks {
++		slow_xtal {
++			clock-frequency = <32768>;
++		};
++		main_xtal {
++			clock-frequency = <12000000>;
++		};
++	};
++	ahb {
++		apb {
++			mmc0: mmc@f0008000 {
++				pinctrl-0 = <
++				  &pinctrl_mmc0_slot0_clk_cmd_dat0
++				  &pinctrl_mmc0_slot0_dat1_3>;
++				status = "okay";
++				slot@0 {
++					reg = <0>;
++					bus-width = <4>;
++				};
++			};
++			i2c0: i2c@f8010000 {
++				status ="okay";
++			};
++			usart1: serial@f8020000 {
++				pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts &pinctrl_usart1_cts>;
++				linux,rs485-enabled-at-boot-time;
++				rs485-rts-delay = <0 0>;
++				status ="okay";
++			};
++			ssc0: ssc@f0010000 {
++				status = "okay";
++			};
++			dbgu: serial@fffff200 {
++				status = "okay";
++			};
++			rtc@fffffeb0 {
++				status = "okay";
++			};
++		};
++		usb0: ohci@00600000 {
++			status = "okay";
++			num-ports = <3>;
++		};
++		usb1: ehci@00700000 {
++			status = "okay";
++		};
++	};
++	
++	onewire@0 {
++		compatible = "w1-gpio";
++		gpios = <&pioA 24 GPIO_ACTIVE_LOW>;
++	};
++	onewire@1 {
++		compatible = "w1-gpio";
++		gpios = <&pioA 25 GPIO_ACTIVE_LOW>;
++	};
++	onewire@2 {
++		compatible = "w1-gpio";
++		gpios = <&pioA 26 GPIO_ACTIVE_LOW>;
++	};
++	onewire@3 {
++		compatible = "w1-gpio";
++		gpios = <&pioA 27 GPIO_ACTIVE_LOW>;
++	};
++};
 diff --git a/arch/arm/boot/dts/acme-arietta.dts b/arch/arm/boot/dts/acme-arietta.dts
 new file mode 100644
 index 0000000..e85ac4c
@@ -5904,10 +5991,10 @@ index 0000000..5520df4
 +CONFIG_CRC_CCITT=m
 +CONFIG_CRC_ITU_T=m
 diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 27cb424..fa3e999 100644
+index 5b2a9f9..59ad1c6 100644
 --- a/drivers/gpu/drm/panel/panel-simple.c
 +++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -1552,6 +1552,81 @@ static const struct panel_desc urt_umsh_8596md_parallel = {
+@@ -1554,6 +1554,81 @@ static const struct panel_desc urt_umsh_8596md_parallel = {
  	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
  };
  
@@ -5989,7 +6076,7 @@ index 27cb424..fa3e999 100644
  static const struct of_device_id platform_of_match[] = {
  	{
  		.compatible = "ampire,am800480r3tmqwa1h",
-@@ -1713,6 +1788,15 @@ static const struct of_device_id platform_of_match[] = {
+@@ -1715,6 +1790,15 @@ static const struct of_device_id platform_of_match[] = {
  		.compatible = "urt,umsh-8596md-20t",
  		.data = &urt_umsh_8596md_parallel,
  	}, {
