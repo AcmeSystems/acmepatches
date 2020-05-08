@@ -614,10 +614,10 @@ index 0000000000..b907c57a3b
 +
 diff --git a/configs/acme-bertad2_defconfig b/configs/acme-bertad2_defconfig
 new file mode 100644
-index 0000000000..840119069a
+index 0000000000..ace367a522
 --- /dev/null
 +++ b/configs/acme-bertad2_defconfig
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,42 @@
 +BR2_arm=y
 +BR2_cortex_a5=y
 +BR2_ARM_ENABLE_NEON=y
@@ -625,6 +625,8 @@ index 0000000000..840119069a
 +BR2_ARM_INSTRUCTIONS_THUMB2=y
 +BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_19=y
 +BR2_TOOLCHAIN_BUILDROOT_WCHAR=y
++BR2_TARGET_GENERIC_HOSTNAME="roadrunner"
++BR2_TARGET_GENERIC_ISSUE="Welcome to RoadRunner-Buildroot"
 +BR2_TARGET_GENERIC_ROOT_PASSWD="acmesystems"
 +BR2_ROOTFS_OVERLAY="$(TOPDIR)/board/acmesystems/bertad2/rootfs_overlay"
 +BR2_ROOTFS_POST_IMAGE_SCRIPT="support/scripts/genimage.sh"
@@ -638,6 +640,8 @@ index 0000000000..840119069a
 +BR2_LINUX_KERNEL_DTS_SUPPORT=y
 +BR2_LINUX_KERNEL_INTREE_DTS_NAME="at91-sama5d2_roadrunner"
 +BR2_LINUX_KERNEL_INSTALL_TARGET=y
++BR2_PACKAGE_GIT=y
++BR2_PACKAGE_MEMTESTER=y
 +BR2_PACKAGE_PYTHON=y
 +BR2_PACKAGE_PYTHON_PY_PYC=y
 +BR2_PACKAGE_PYTHON_CURSES=y
