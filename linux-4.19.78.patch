@@ -1,0 +1,40 @@
+diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+index e86e0c00e..0d67eb01c 100644
+--- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+@@ -66,6 +66,8 @@
+ 	};
+ 
+ 	ahb {
++
++
+ 		usb0: gadget@300000 {
+ 			atmel,vbus-gpio = <&pioA PIN_PD20 GPIO_ACTIVE_HIGH>;
+ 			pinctrl-names = "default";
+@@ -103,6 +105,9 @@
+ 		};
+ 
+ 		apb {
++		
++		
++		
+ 			isc: isc@f0008000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_isc_base &pinctrl_isc_data_8bit &pinctrl_isc_data_9_10 &pinctrl_isc_data_11_12>;
+@@ -283,6 +288,7 @@
+ 				status = "okay";
+ 			};
+ 
++
+ 			pinctrl@fc038000 {
+ 
+ 				pinctrl_can1_default: can1_default {
+@@ -505,6 +511,8 @@
+ 				};
+ 			};
+ 
++
++
+ 			can1: can@fc050000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_can1_default>;
