@@ -360,423 +360,15 @@ index 000000000..656beb82f
 +		};
 +	};
 +};
-diff --git a/arch/arm/boot/dts/acme-roadrunner-banco.dts b/arch/arm/boot/dts/acme-roadrunner-banco.dts
-new file mode 100644
-index 000000000..9febaf8f9
---- /dev/null
-+++ b/arch/arm/boot/dts/acme-roadrunner-banco.dts
-@@ -0,0 +1,403 @@
-+/*
-+ * at91-sama5d2_roadrunner_banco.dts - Device Tree file for SAMA5D2 Xplained board
-+ *
-+ *  Copyright (C) 2015 Atmel,
-+ *                2015 Nicolas Ferre <nicolas.ferre@atmel.com>
-+ *                2020 Sergio Tanzilli <tanzilli@acmesystems.it>
-+ *
-+ * This file is dual-licensed: you can use it either under the terms
-+ * of the GPL or the X11 license, at your option. Note that this dual
-+ * licensing only applies to this file, and not this project as a
-+ * whole.
-+ *
-+ *  a) This file is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation; either version 2 of the
-+ *     License, or (at your option) any later version.
-+ *
-+ *     This file is distributed in the hope that it will be useful,
-+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *     GNU General Public License for more details.
-+ *
-+ * Or, alternatively,
-+ *
-+ *  b) Permission is hereby granted, free of charge, to any person
-+ *     obtaining a copy of this software and associated documentation
-+ *     files (the "Software"), to deal in the Software without
-+ *     restriction, including without limitation the rights to use,
-+ *     copy, modify, merge, publish, distribute, sublicense, and/or
-+ *     sell copies of the Software, and to permit persons to whom the
-+ *     Software is furnished to do so, subject to the following
-+ *     conditions:
-+ *
-+ *     The above copyright notice and this permission notice shall be
-+ *     included in all copies or substantial portions of the Software.
-+ *
-+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *     OTHER DEALINGS IN THE SOFTWARE.
-+ */
-+/dts-v1/;
-+#include "sama5d2.dtsi"
-+#include "sama5d2-pinfunc.h"
-+#include <dt-bindings/mfd/atmel-flexcom.h>
-+#include <dt-bindings/gpio/gpio.h>
-+
-+
-+
-+/ {
-+	model = "Acme Systems SAMA5D2 Roadrunner";
-+	compatible = "atmel,sama5d2-roadrunner", "atmel,sama5d27","atmel,sama5d2", "atmel,sama5";
-+
-+	bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0";
-+
-+	chosen {
-+		stdout-path = "serial0:115200n8";
-+	};
-+
-+	clocks {
-+		slow_xtal {
-+			clock-frequency = <32768>;
-+		};
-+
-+		main_xtal {
-+			clock-frequency = <12000000>;
-+		};
-+	};
-+
-+	ahb {
-+		usb0: gadget@300000 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_usba_vbus>;
-+			status = "okay";
-+		};
-+
-+		usb1: ohci@400000 {
-+			num-ports = <3>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_usb_default>;
-+			status = "okay";
-+		};
-+
-+		usb2: ehci@500000 {
-+			status = "okay";
-+		};
-+
-+		sdmmc1: sdio-host@b0000000 {
-+			bus-width = <4>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_sdmmc1_default>;
-+			non-removable;
-+			status = "okay"; /* conflict with qspi0 */
-+		};
-+
-+		apb {
-+
-+			macb0: ethernet@f8008000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_macb0_default &pinctrl_macb0_phy_irq>;
-+				phy-mode = "rmii";
-+				status = "okay";
-+
-+				ethernet-phy@1 {
-+					reg = <0x1>;
-+					interrupt-parent = <&pioA>;
-+					interrupts = <73 IRQ_TYPE_LEVEL_LOW>;
-+					/*interrupts = <PIN_PC9 IRQ_TYPE_LEVEL_LOW>;*/
-+				};
-+			};
-+
-+			tcb0: timer@f800c000 {
-+				timer0: timer@0 {
-+					compatible = "atmel,tcb-timer";
-+					reg = <0>;
-+				};
-+
-+				timer1: timer@1 {
-+					compatible = "atmel,tcb-timer";
-+					reg = <1>;
-+				};
-+			};
-+
-+			uart1: serial@f8020000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_uart1_default>;
-+				atmel,use-dma-rx;
-+				atmel,use-dma-tx;
-+				status = "okay";
-+			};
-+
-+			shdwc@f8048010 {
-+				atmel,shdwc-debouncer = <976>;
-+				atmel,wakeup-rtc-timer;
-+
-+				input@0 {
-+					reg = <0>;
-+					atmel,wakeup-type = "low";
-+				};
-+			};
-+
-+			watchdog@f8048040 {
-+				status = "okay";
-+			};
-+
-+			vddin_3v3: fixed-regulator-vddin_3v3 {
-+				compatible = "regulator-fixed";
-+
-+				regulator-name = "VDDIN_3V3";
-+				regulator-min-microvolt = <3300000>;
-+				regulator-max-microvolt = <3300000>;
-+				regulator-always-on;
-+				regulator-boot-on;
-+				status = "okay";
-+			};
-+
-+			vddana: fixed-regulator-vddana {
-+				compatible = "regulator-fixed";
-+
-+				regulator-name = "VDDANA";
-+				regulator-min-microvolt = <3300000>;
-+				regulator-max-microvolt = <3300000>;
-+				regulator-always-on;
-+				regulator-boot-on;
-+				vin-supply = <&vddin_3v3>;
-+				status = "okay";
-+			};
-+
-+			advref: fixed-regulator-advref {
-+				compatible = "regulator-fixed";
-+
-+				regulator-name = "advref";
-+				regulator-min-microvolt = <3300000>;
-+				regulator-max-microvolt = <3300000>;
-+				regulator-always-on;
-+				regulator-boot-on;
-+				vin-supply = <&vddana>;
-+				status = "okay";
-+			};
-+
-+			adc: adc@fc030000 {
-+				vddana-supply = <&vddana>; 
-+				vref-supply =  <&vddana>; 
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_adc_default>;
-+				status = "okay";
-+			};
-+
-+			pinctrl@fc038000 {
-+				/*
-+				 * There is no real pinmux for ADC, if the pin
-+				 * is not requested by another peripheral then
-+				 * the muxing is done when channel is enabled.
-+				 * Requesting pins for ADC is GPIO is
-+				 * encouraged to prevent conflicts and to
-+				 * disable bias in order to be in the same
-+				 * state when the pin is not muxed to the adc.
-+				 */
-+				pinctrl_adc_default: adc_default {
-+					pinmux = <PIN_PD29__GPIO>,
-+						<PIN_PD30__GPIO>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_can0_default: can0_default {
-+					pinmux = <PIN_PC10__CANTX0>,
-+						 <PIN_PC11__CANRX0>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_can1_default: can1_default {
-+					pinmux = <PIN_PC26__CANTX1>,
-+						 <PIN_PC27__CANRX1>;
-+					bias-disable;
-+				};
-+
-+				/*
-+				 * The ADTRG pin can work on any edge type.
-+				 * In here it's being pulled up, so need to
-+				 * connect it to ground to get an edge e.g.
-+				 * Trigger can be configured on falling, rise
-+				 * or any edge, and the pull-up can be changed
-+				 * to pull-down or left floating according to
-+				 * needs.
-+				 */
-+				pinctrl_adtrg_default: adtrg_default {
-+					pinmux = <PIN_PD31__ADTRG>;
-+					bias-pull-up;
-+				};
-+
-+				pinctrl_charger_chglev: charger_chglev {
-+					pinmux = <PIN_PA12__GPIO>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_charger_irq: charger_irq {
-+					pinmux = <PIN_PB13__GPIO>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_charger_lbo: charger_lbo {
-+					pinmux = <PIN_PC8__GPIO>;
-+					bias-pull-up;
-+				};
-+
-+				pinctrl_classd_default: classd_default {
-+					pinmux = <PIN_PB1__CLASSD_R0>,
-+						 <PIN_PB2__CLASSD_R1>,
-+						 <PIN_PB3__CLASSD_R2>,
-+						 <PIN_PB4__CLASSD_R3>;
-+					bias-pull-up;
-+				};
-+
-+				pinctrl_flx0_default: flx0_default {
-+					pinmux = <PIN_PB28__FLEXCOM0_IO0>,
-+						 <PIN_PB29__FLEXCOM0_IO1>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_flx4_default: flx4_default {
-+					pinmux = <PIN_PD12__FLEXCOM4_IO0>,
-+						 <PIN_PD13__FLEXCOM4_IO1>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_i2c0_default: i2c0_default {
-+					pinmux = <PIN_PD21__TWD0>,
-+						 <PIN_PD22__TWCK0>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_i2c1_default: i2c1_default {
-+					pinmux = <PIN_PD4__TWD1>,
-+						 <PIN_PD5__TWCK1>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_key_gpio_default: key_gpio_default {
-+					pinmux = <PIN_PB9__GPIO>;
-+					bias-pull-up;
-+				};
-+
-+				pinctrl_macb0_default: macb0_default {
-+					pinmux = <PIN_PB14__GTXCK>,
-+						 <PIN_PB15__GTXEN>,
-+						 <PIN_PB16__GRXDV>,
-+						 <PIN_PB17__GRXER>,
-+						 <PIN_PB18__GRX0>,
-+						 <PIN_PB19__GRX1>,
-+						 <PIN_PB20__GTX0>,
-+						 <PIN_PB21__GTX1>,
-+						 <PIN_PB22__GMDC>,
-+						 <PIN_PB23__GMDIO>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_macb0_phy_irq: macb0_phy_irq {
-+					pinmux = <PIN_PC9__GPIO>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_pdmic_default: pdmic_default {
-+					pinmux = <PIN_PB26__PDMIC_DAT>,
-+						<PIN_PB27__PDMIC_CLK>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_sdmmc0_default: sdmmc0_default {
-+					cmd_data {
-+						pinmux = <PIN_PA1__SDMMC0_CMD>,
-+							 <PIN_PA2__SDMMC0_DAT0>,
-+							 <PIN_PA3__SDMMC0_DAT1>,
-+							 <PIN_PA4__SDMMC0_DAT2>,
-+							 <PIN_PA5__SDMMC0_DAT3>,
-+							 <PIN_PA6__SDMMC0_DAT4>,
-+							 <PIN_PA7__SDMMC0_DAT5>,
-+							 <PIN_PA8__SDMMC0_DAT6>,
-+							 <PIN_PA9__SDMMC0_DAT7>;
-+						bias-disable;
-+					};
-+
-+					ck_cd_rstn_vddsel {
-+						pinmux = <PIN_PA0__SDMMC0_CK>,
-+							 <PIN_PA10__SDMMC0_RSTN>,
-+							 <PIN_PA11__SDMMC0_VDDSEL>,
-+							 <PIN_PA13__SDMMC0_CD>;
-+						bias-disable;
-+					};
-+				};
-+
-+				pinctrl_sdmmc1_default: sdmmc1_default {
-+					cmd_data {
-+						pinmux = <PIN_PA28__SDMMC1_CMD>,
-+							 <PIN_PA18__SDMMC1_DAT0>,
-+							 <PIN_PA19__SDMMC1_DAT1>,
-+							 <PIN_PA20__SDMMC1_DAT2>,
-+							 <PIN_PA21__SDMMC1_DAT3>;
-+						bias-pull-up;
-+					};
-+
-+					conf-ck_cd {
-+						pinmux = <PIN_PA22__SDMMC1_CK>;
-+						bias-disable;
-+					};
-+				};
-+
-+				pinctrl_spi0_default: spi0_default {
-+					pinmux = <PIN_PA14__SPI0_SPCK>,
-+						 <PIN_PA15__SPI0_MOSI>,
-+						 <PIN_PA16__SPI0_MISO>,
-+						 <PIN_PA17__SPI0_NPCS0>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_uart1_default: uart1_default {
-+					pinmux = <PIN_PD2__URXD1>,
-+						 <PIN_PD3__UTXD1>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_uart3_default: uart3_default {
-+					pinmux = <PIN_PB11__URXD3>,
-+						 <PIN_PB12__UTXD3>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_usb_default: usb_default {
-+					pinmux = <PIN_PB10__GPIO>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_usba_vbus: usba_vbus {
-+					pinmux = <PIN_PA31__GPIO>;
-+					bias-disable;
-+				};
-+
-+				pinctrl_pwm0_pwm2_default: pwm0_pwm2_default {
-+					pinmux = <PIN_PB5__PWMH2>,
-+						 <PIN_PB6__PWML2>;
-+					bias-pull-up;
-+				};
-+			};
-+
-+			classd: classd@fc048000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_classd_default>;
-+				atmel,pwm-type = "diff";
-+				atmel,non-overlap-time = <10>;
-+				status = "disabled";
-+			};
-+
-+			can1: can@fc050000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_can1_default>;
-+				status = "disabled";
-+			};
-+		};
-+	};
-+};
 diff --git a/arch/arm/boot/dts/acme-roadrunner.dts b/arch/arm/boot/dts/acme-roadrunner.dts
 new file mode 100644
-index 000000000..b44057d83
+index 000000000..400cdfab5
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-roadrunner.dts
-@@ -0,0 +1,490 @@
+@@ -0,0 +1,491 @@
 +/*
-+ * at91-sama5d2_roadrunner.dts - Device Tree file for SAMA5D2 Xplained board
++ * acme_roadrunner.dts - Device Tree file for Acme Systems
++ * RoadRunner SOM 
 + *
 + *  Copyright (C) 2015 Atmel,
 + *                2015 Nicolas Ferre <nicolas.ferre@atmel.com>
@@ -1192,6 +784,1385 @@ index 000000000..b44057d83
 +							 <PIN_PA10__SDMMC0_RSTN>,
 +							 <PIN_PA11__SDMMC0_VDDSEL>,
 +							 <PIN_PA13__SDMMC0_CD>;
++						bias-disable;
++					};
++				};
++
++				pinctrl_sdmmc1_default: sdmmc1_default {
++					cmd_data {
++						pinmux = <PIN_PA28__SDMMC1_CMD>,
++							 <PIN_PA18__SDMMC1_DAT0>,
++							 <PIN_PA19__SDMMC1_DAT1>,
++							 <PIN_PA20__SDMMC1_DAT2>,
++							 <PIN_PA21__SDMMC1_DAT3>;
++						bias-pull-up;
++					};
++
++					conf-ck_cd {
++						pinmux = <PIN_PA22__SDMMC1_CK>;
++						bias-disable;
++					};
++				};
++
++				pinctrl_spi0_default: spi0_default {
++					pinmux = <PIN_PA14__SPI0_SPCK>,
++						 <PIN_PA15__SPI0_MOSI>,
++						 <PIN_PA16__SPI0_MISO>,
++						 <PIN_PA17__SPI0_NPCS0>;
++					bias-disable;
++				};
++
++				pinctrl_uart1_default: uart1_default {
++					pinmux = <PIN_PD2__URXD1>,
++						 <PIN_PD3__UTXD1>;
++					bias-disable;
++				};
++
++				pinctrl_uart3_default: uart3_default {
++					pinmux = <PIN_PB11__URXD3>,
++						 <PIN_PB12__UTXD3>;
++					bias-disable;
++				};
++
++				pinctrl_usb_default: usb_default {
++					pinmux = <PIN_PB10__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_usba_vbus: usba_vbus {
++					pinmux = <PIN_PA31__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_pwm0_pwm2_default: pwm0_pwm2_default {
++					pinmux = <PIN_PB5__PWMH2>,
++						 <PIN_PB6__PWML2>;
++					bias-pull-up;
++				};
++			};
++
++			classd: classd@fc048000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_classd_default>;
++				atmel,pwm-type = "diff";
++				atmel,non-overlap-time = <10>;
++				status = "disabled";
++			};
++
++			can1: can@fc050000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_can1_default>;
++				status = "disabled";
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/acme-rr-banco.dts b/arch/arm/boot/dts/acme-rr-banco.dts
+new file mode 100644
+index 000000000..afc83deeb
+--- /dev/null
++++ b/arch/arm/boot/dts/acme-rr-banco.dts
+@@ -0,0 +1,404 @@
++/*
++ * acme-roadrunner-banco.dts - Device Tree file for Acme Systems
++ * RoadRunner Bench Test
++ *
++ *  Copyright (C) 2015 Atmel,
++ *                2015 Nicolas Ferre <nicolas.ferre@atmel.com>
++ *                2020 Sergio Tanzilli <tanzilli@acmesystems.it>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This file is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This file is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++/dts-v1/;
++#include "sama5d2.dtsi"
++#include "sama5d2-pinfunc.h"
++#include <dt-bindings/mfd/atmel-flexcom.h>
++#include <dt-bindings/gpio/gpio.h>
++
++
++
++/ {
++	model = "Acme Systems SAMA5D2 Roadrunner";
++	compatible = "atmel,sama5d2-roadrunner", "atmel,sama5d27","atmel,sama5d2", "atmel,sama5";
++
++	bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	clocks {
++		slow_xtal {
++			clock-frequency = <32768>;
++		};
++
++		main_xtal {
++			clock-frequency = <12000000>;
++		};
++	};
++
++	ahb {
++		usb0: gadget@300000 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usba_vbus>;
++			status = "okay";
++		};
++
++		usb1: ohci@400000 {
++			num-ports = <3>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usb_default>;
++			status = "okay";
++		};
++
++		usb2: ehci@500000 {
++			status = "okay";
++		};
++
++		sdmmc1: sdio-host@b0000000 {
++			bus-width = <4>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_sdmmc1_default>;
++			non-removable;
++			status = "okay"; /* conflict with qspi0 */
++		};
++
++		apb {
++
++			macb0: ethernet@f8008000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_macb0_default &pinctrl_macb0_phy_irq>;
++				phy-mode = "rmii";
++				status = "okay";
++
++				ethernet-phy@1 {
++					reg = <0x1>;
++					interrupt-parent = <&pioA>;
++					interrupts = <73 IRQ_TYPE_LEVEL_LOW>;
++					/*interrupts = <PIN_PC9 IRQ_TYPE_LEVEL_LOW>;*/
++				};
++			};
++
++			tcb0: timer@f800c000 {
++				timer0: timer@0 {
++					compatible = "atmel,tcb-timer";
++					reg = <0>;
++				};
++
++				timer1: timer@1 {
++					compatible = "atmel,tcb-timer";
++					reg = <1>;
++				};
++			};
++
++			uart1: serial@f8020000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_uart1_default>;
++				atmel,use-dma-rx;
++				atmel,use-dma-tx;
++				status = "okay";
++			};
++
++			shdwc@f8048010 {
++				atmel,shdwc-debouncer = <976>;
++				atmel,wakeup-rtc-timer;
++
++				input@0 {
++					reg = <0>;
++					atmel,wakeup-type = "low";
++				};
++			};
++
++			watchdog@f8048040 {
++				status = "okay";
++			};
++
++			vddin_3v3: fixed-regulator-vddin_3v3 {
++				compatible = "regulator-fixed";
++
++				regulator-name = "VDDIN_3V3";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				status = "okay";
++			};
++
++			vddana: fixed-regulator-vddana {
++				compatible = "regulator-fixed";
++
++				regulator-name = "VDDANA";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				vin-supply = <&vddin_3v3>;
++				status = "okay";
++			};
++
++			advref: fixed-regulator-advref {
++				compatible = "regulator-fixed";
++
++				regulator-name = "advref";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				vin-supply = <&vddana>;
++				status = "okay";
++			};
++
++			adc: adc@fc030000 {
++				vddana-supply = <&vddana>; 
++				vref-supply =  <&vddana>; 
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_adc_default>;
++				status = "okay";
++			};
++
++			pinctrl@fc038000 {
++				/*
++				 * There is no real pinmux for ADC, if the pin
++				 * is not requested by another peripheral then
++				 * the muxing is done when channel is enabled.
++				 * Requesting pins for ADC is GPIO is
++				 * encouraged to prevent conflicts and to
++				 * disable bias in order to be in the same
++				 * state when the pin is not muxed to the adc.
++				 */
++				pinctrl_adc_default: adc_default {
++					pinmux = <PIN_PD29__GPIO>,
++						<PIN_PD30__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_can0_default: can0_default {
++					pinmux = <PIN_PC10__CANTX0>,
++						 <PIN_PC11__CANRX0>;
++					bias-disable;
++				};
++
++				pinctrl_can1_default: can1_default {
++					pinmux = <PIN_PC26__CANTX1>,
++						 <PIN_PC27__CANRX1>;
++					bias-disable;
++				};
++
++				/*
++				 * The ADTRG pin can work on any edge type.
++				 * In here it's being pulled up, so need to
++				 * connect it to ground to get an edge e.g.
++				 * Trigger can be configured on falling, rise
++				 * or any edge, and the pull-up can be changed
++				 * to pull-down or left floating according to
++				 * needs.
++				 */
++				pinctrl_adtrg_default: adtrg_default {
++					pinmux = <PIN_PD31__ADTRG>;
++					bias-pull-up;
++				};
++
++				pinctrl_charger_chglev: charger_chglev {
++					pinmux = <PIN_PA12__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_charger_irq: charger_irq {
++					pinmux = <PIN_PB13__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_charger_lbo: charger_lbo {
++					pinmux = <PIN_PC8__GPIO>;
++					bias-pull-up;
++				};
++
++				pinctrl_classd_default: classd_default {
++					pinmux = <PIN_PB1__CLASSD_R0>,
++						 <PIN_PB2__CLASSD_R1>,
++						 <PIN_PB3__CLASSD_R2>,
++						 <PIN_PB4__CLASSD_R3>;
++					bias-pull-up;
++				};
++
++				pinctrl_flx0_default: flx0_default {
++					pinmux = <PIN_PB28__FLEXCOM0_IO0>,
++						 <PIN_PB29__FLEXCOM0_IO1>;
++					bias-disable;
++				};
++
++				pinctrl_flx4_default: flx4_default {
++					pinmux = <PIN_PD12__FLEXCOM4_IO0>,
++						 <PIN_PD13__FLEXCOM4_IO1>;
++					bias-disable;
++				};
++
++				pinctrl_i2c0_default: i2c0_default {
++					pinmux = <PIN_PD21__TWD0>,
++						 <PIN_PD22__TWCK0>;
++					bias-disable;
++				};
++
++				pinctrl_i2c1_default: i2c1_default {
++					pinmux = <PIN_PD4__TWD1>,
++						 <PIN_PD5__TWCK1>;
++					bias-disable;
++				};
++
++				pinctrl_key_gpio_default: key_gpio_default {
++					pinmux = <PIN_PB9__GPIO>;
++					bias-pull-up;
++				};
++
++				pinctrl_macb0_default: macb0_default {
++					pinmux = <PIN_PB14__GTXCK>,
++						 <PIN_PB15__GTXEN>,
++						 <PIN_PB16__GRXDV>,
++						 <PIN_PB17__GRXER>,
++						 <PIN_PB18__GRX0>,
++						 <PIN_PB19__GRX1>,
++						 <PIN_PB20__GTX0>,
++						 <PIN_PB21__GTX1>,
++						 <PIN_PB22__GMDC>,
++						 <PIN_PB23__GMDIO>;
++					bias-disable;
++				};
++
++				pinctrl_macb0_phy_irq: macb0_phy_irq {
++					pinmux = <PIN_PC9__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_pdmic_default: pdmic_default {
++					pinmux = <PIN_PB26__PDMIC_DAT>,
++						<PIN_PB27__PDMIC_CLK>;
++					bias-disable;
++				};
++
++				pinctrl_sdmmc0_default: sdmmc0_default {
++					cmd_data {
++						pinmux = <PIN_PA1__SDMMC0_CMD>,
++							 <PIN_PA2__SDMMC0_DAT0>,
++							 <PIN_PA3__SDMMC0_DAT1>,
++							 <PIN_PA4__SDMMC0_DAT2>,
++							 <PIN_PA5__SDMMC0_DAT3>,
++							 <PIN_PA6__SDMMC0_DAT4>,
++							 <PIN_PA7__SDMMC0_DAT5>,
++							 <PIN_PA8__SDMMC0_DAT6>,
++							 <PIN_PA9__SDMMC0_DAT7>;
++						bias-disable;
++					};
++
++					ck_cd_rstn_vddsel {
++						pinmux = <PIN_PA0__SDMMC0_CK>,
++							 <PIN_PA10__SDMMC0_RSTN>,
++							 <PIN_PA11__SDMMC0_VDDSEL>,
++							 <PIN_PA13__SDMMC0_CD>;
++						bias-disable;
++					};
++				};
++
++				pinctrl_sdmmc1_default: sdmmc1_default {
++					cmd_data {
++						pinmux = <PIN_PA28__SDMMC1_CMD>,
++							 <PIN_PA18__SDMMC1_DAT0>,
++							 <PIN_PA19__SDMMC1_DAT1>,
++							 <PIN_PA20__SDMMC1_DAT2>,
++							 <PIN_PA21__SDMMC1_DAT3>;
++						bias-pull-up;
++					};
++
++					conf-ck_cd {
++						pinmux = <PIN_PA22__SDMMC1_CK>;
++						bias-disable;
++					};
++				};
++
++				pinctrl_spi0_default: spi0_default {
++					pinmux = <PIN_PA14__SPI0_SPCK>,
++						 <PIN_PA15__SPI0_MOSI>,
++						 <PIN_PA16__SPI0_MISO>,
++						 <PIN_PA17__SPI0_NPCS0>;
++					bias-disable;
++				};
++
++				pinctrl_uart1_default: uart1_default {
++					pinmux = <PIN_PD2__URXD1>,
++						 <PIN_PD3__UTXD1>;
++					bias-disable;
++				};
++
++				pinctrl_uart3_default: uart3_default {
++					pinmux = <PIN_PB11__URXD3>,
++						 <PIN_PB12__UTXD3>;
++					bias-disable;
++				};
++
++				pinctrl_usb_default: usb_default {
++					pinmux = <PIN_PB10__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_usba_vbus: usba_vbus {
++					pinmux = <PIN_PA31__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_pwm0_pwm2_default: pwm0_pwm2_default {
++					pinmux = <PIN_PB5__PWMH2>,
++						 <PIN_PB6__PWML2>;
++					bias-pull-up;
++				};
++			};
++
++			classd: classd@fc048000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_classd_default>;
++				atmel,pwm-type = "diff";
++				atmel,non-overlap-time = <10>;
++				status = "disabled";
++			};
++
++			can1: can@fc050000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_can1_default>;
++				status = "disabled";
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/acme-rr-fbtft.dts b/arch/arm/boot/dts/acme-rr-fbtft.dts
+new file mode 100644
+index 000000000..59445f948
+--- /dev/null
++++ b/arch/arm/boot/dts/acme-rr-fbtft.dts
+@@ -0,0 +1,429 @@
++/*
++ * Device Tree file for Acme Systems for RoadRunner SOM 
++ * Test with small SPI display
++ *
++ *  Copyright (C) 2015 Atmel,
++ *                2015 Nicolas Ferre <nicolas.ferre@atmel.com>
++ *                2020 Sergio Tanzilli <tanzilli@acmesystems.it>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This file is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This file is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++/dts-v1/;
++#include "sama5d2.dtsi"
++#include "sama5d2-pinfunc.h"
++#include <dt-bindings/mfd/atmel-flexcom.h>
++#include <dt-bindings/gpio/gpio.h>
++
++
++
++/ {
++	model = "Acme Systems SAMA5D2 Roadrunner";
++	compatible = "atmel,sama5d2-roadrunner", "atmel,sama5d27","atmel,sama5d2", "atmel,sama5";
++
++	bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	clocks {
++		slow_xtal {
++			clock-frequency = <32768>;
++		};
++
++		main_xtal {
++			clock-frequency = <12000000>;
++		};
++	};
++
++	ahb {
++		usb0: gadget@300000 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usba_vbus>;
++			status = "okay";
++		};
++
++		usb1: ohci@400000 {
++			num-ports = <3>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usb_default>;
++			status = "okay";
++		};
++
++		usb2: ehci@500000 {
++			status = "okay";
++		};
++
++		sdmmc1: sdio-host@b0000000 {
++			bus-width = <4>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_sdmmc1_default>;
++			non-removable;
++			status = "okay"; /* conflict with qspi0 */
++		};
++
++		apb {
++		
++			/* First display */
++
++			spi0: spi@f8000000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_spi0_default>;
++				status = "okay";
++
++				device@0 {
++					rotate = <90>;
++					bgr;
++					fps = <30>;
++					compatible = "ilitek,ili9341";
++					spi-max-frequency = <50000000>;   
++					reg = <0>;
++					regwidth = <8>;
++					buswidth = <8>;
++					verbose = <3>;
++					reset-gpios = <&pioA PIN_PA13 0>;
++					dc-gpios = <&pioA PIN_PA12 0>;
++				};
++			};
++
++
++			/* Second display */
++
++			spi1: spi@fc000000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_spi1_default>;
++				status = "okay";
++
++				device@0 {
++					rotate = <90>;
++					bgr;
++					fps = <30>;
++					compatible = "ilitek,ili9341";
++					spi-max-frequency = <50000000>;   
++					reg = <0>;
++					regwidth = <8>;
++					buswidth = <8>;
++					verbose = <3>;
++					reset-gpios = <&pioA PIN_PC5 0>;
++					dc-gpios = <&pioA PIN_PC6 0>;
++				};
++			};
++
++			macb0: ethernet@f8008000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_macb0_default &pinctrl_macb0_phy_irq>;
++				phy-mode = "rmii";
++				status = "okay";
++
++				ethernet-phy@1 {
++					reg = <0x1>;
++					interrupt-parent = <&pioA>;
++					interrupts = <73 IRQ_TYPE_LEVEL_LOW>;
++					/*interrupts = <PIN_PC9 IRQ_TYPE_LEVEL_LOW>;*/
++				};
++			};
++
++			tcb0: timer@f800c000 {
++				timer0: timer@0 {
++					compatible = "atmel,tcb-timer";
++					reg = <0>;
++				};
++
++				timer1: timer@1 {
++					compatible = "atmel,tcb-timer";
++					reg = <1>;
++				};
++			};
++
++			uart1: serial@f8020000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_uart1_default>;
++				atmel,use-dma-rx;
++				atmel,use-dma-tx;
++				status = "okay";
++			};
++
++			shdwc@f8048010 {
++				atmel,shdwc-debouncer = <976>;
++				atmel,wakeup-rtc-timer;
++
++				input@0 {
++					reg = <0>;
++					atmel,wakeup-type = "low";
++				};
++			};
++
++			watchdog@f8048040 {
++				status = "okay";
++			};
++
++
++			pinctrl@fc038000 {
++				/*
++				 * There is no real pinmux for ADC, if the pin
++				 * is not requested by another peripheral then
++				 * the muxing is done when channel is enabled.
++				 * Requesting pins for ADC is GPIO is
++				 * encouraged to prevent conflicts and to
++				 * disable bias in order to be in the same
++				 * state when the pin is not muxed to the adc.
++				 */
++				pinctrl_adc_default: adc_default {
++					pinmux = <PIN_PD19__GPIO>,
++						<PIN_PD20__GPIO>,
++						<PIN_PD21__GPIO>,
++						<PIN_PD22__GPIO>,
++						<PIN_PD23__GPIO>,
++						<PIN_PD24__GPIO>,
++						<PIN_PD25__GPIO>,
++						<PIN_PD26__GPIO>,
++						<PIN_PD27__GPIO>,
++						<PIN_PD28__GPIO>,
++						<PIN_PD29__GPIO>,
++						<PIN_PD30__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_can0_default: can0_default {
++					pinmux = <PIN_PC10__CANTX0>,
++						 <PIN_PC11__CANRX0>;
++					bias-disable;
++				};
++
++				pinctrl_can1_default: can1_default {
++					pinmux = <PIN_PC26__CANTX1>,
++						 <PIN_PC27__CANRX1>;
++					bias-disable;
++				};
++
++				/*
++				 * The ADTRG pin can work on any edge type.
++				 * In here it's being pulled up, so need to
++				 * connect it to ground to get an edge e.g.
++				 * Trigger can be configured on falling, rise
++				 * or any edge, and the pull-up can be changed
++				 * to pull-down or left floating according to
++				 * needs.
++				 */
++				pinctrl_adtrg_default: adtrg_default {
++					pinmux = <PIN_PD31__ADTRG>;
++					bias-pull-up;
++				};
++
++				pinctrl_charger_chglev: charger_chglev {
++					pinmux = <PIN_PA12__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_charger_irq: charger_irq {
++					pinmux = <PIN_PB13__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_charger_lbo: charger_lbo {
++					pinmux = <PIN_PC8__GPIO>;
++					bias-pull-up;
++				};
++
++				pinctrl_classd_default: classd_default {
++					pinmux = <PIN_PB1__CLASSD_R0>,
++						 <PIN_PB2__CLASSD_R1>,
++						 <PIN_PB3__CLASSD_R2>,
++						 <PIN_PB4__CLASSD_R3>;
++					bias-pull-up;
++				};
++
++				pinctrl_flx0_default: flx0_default {
++					pinmux = <PIN_PB28__FLEXCOM0_IO0>,
++						 <PIN_PB29__FLEXCOM0_IO1>;
++					bias-disable;
++				};
++
++				pinctrl_flx4_default: flx4_default {
++					pinmux = <PIN_PD12__FLEXCOM4_IO0>,
++						 <PIN_PD13__FLEXCOM4_IO1>;
++					bias-disable;
++				};
++
++				pinctrl_i2c0_default: i2c0_default {
++					pinmux = <PIN_PD21__TWD0>,
++						 <PIN_PD22__TWCK0>;
++					bias-disable;
++				};
++
++				pinctrl_i2c1_default: i2c1_default {
++					pinmux = <PIN_PD4__TWD1>,
++						 <PIN_PD5__TWCK1>;
++					bias-disable;
++				};
++
++				pinctrl_key_gpio_default: key_gpio_default {
++					pinmux = <PIN_PB9__GPIO>;
++					bias-pull-up;
++				};
++
++				pinctrl_macb0_default: macb0_default {
++					pinmux = <PIN_PB14__GTXCK>,
++						 <PIN_PB15__GTXEN>,
++						 <PIN_PB16__GRXDV>,
++						 <PIN_PB17__GRXER>,
++						 <PIN_PB18__GRX0>,
++						 <PIN_PB19__GRX1>,
++						 <PIN_PB20__GTX0>,
++						 <PIN_PB21__GTX1>,
++						 <PIN_PB22__GMDC>,
++						 <PIN_PB23__GMDIO>;
++					bias-disable;
++				};
++
++				pinctrl_macb0_phy_irq: macb0_phy_irq {
++					pinmux = <PIN_PC9__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_pdmic_default: pdmic_default {
++					pinmux = <PIN_PB26__PDMIC_DAT>,
++						<PIN_PB27__PDMIC_CLK>;
++					bias-disable;
++				};
++
++				pinctrl_sdmmc0_default: sdmmc0_default {
++					cmd_data {
++						pinmux = <PIN_PA1__SDMMC0_CMD>,
++							 <PIN_PA2__SDMMC0_DAT0>,
++							 <PIN_PA3__SDMMC0_DAT1>,
++							 <PIN_PA4__SDMMC0_DAT2>,
++							 <PIN_PA5__SDMMC0_DAT3>,
++							 <PIN_PA6__SDMMC0_DAT4>,
++							 <PIN_PA7__SDMMC0_DAT5>,
++							 <PIN_PA8__SDMMC0_DAT6>,
++							 <PIN_PA9__SDMMC0_DAT7>;
++						bias-disable;
++					};
++
++					ck_cd_rstn_vddsel {
++						pinmux = <PIN_PA0__SDMMC0_CK>,
++							 <PIN_PA10__SDMMC0_RSTN>,
++							 <PIN_PA11__SDMMC0_VDDSEL>,
++							 <PIN_PA13__SDMMC0_CD>;
++						bias-disable;
++					};
++				};
++
++				pinctrl_sdmmc1_default: sdmmc1_default {
++					cmd_data {
++						pinmux = <PIN_PA28__SDMMC1_CMD>,
++							 <PIN_PA18__SDMMC1_DAT0>,
++							 <PIN_PA19__SDMMC1_DAT1>,
++							 <PIN_PA20__SDMMC1_DAT2>,
++							 <PIN_PA21__SDMMC1_DAT3>;
++						bias-pull-up;
++					};
++
++					conf-ck_cd {
++						pinmux = <PIN_PA22__SDMMC1_CK>;
++						bias-disable;
++					};
++				};
++
++				/* Pin definition SPI 0 Peripheral A */
++
++				pinctrl_spi0_default: spi0_default {
++					pinmux = <PIN_PA14__SPI0_SPCK>,
++							 <PIN_PA15__SPI0_MOSI>,
++							 <PIN_PA16__SPI0_MISO>,
++							 <PIN_PA17__SPI0_NPCS0>;
++					bias-disable;
++				};
++
++				/* Pin definition SPI 1 Peripheral D */
++
++				pinctrl_spi1_default: spi1_default {
++					pinmux = <PIN_PC1__SPI1_SPCK>,
++							<PIN_PC2__SPI1_MOSI>,
++							<PIN_PC3__SPI1_MISO>,
++							<PIN_PC4__SPI1_NPCS0>;
++					bias-disable;
++				};
++
++				pinctrl_uart1_default: uart1_default {
++					pinmux = <PIN_PD2__URXD1>,
++						 <PIN_PD3__UTXD1>;
++					bias-disable;
++				};
++
++				pinctrl_uart3_default: uart3_default {
++					pinmux = <PIN_PB11__URXD3>,
++						 <PIN_PB12__UTXD3>;
++					bias-disable;
++				};
++
++				pinctrl_usb_default: usb_default {
++					pinmux = <PIN_PB10__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_usba_vbus: usba_vbus {
++					pinmux = <PIN_PA31__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_pwm0_pwm2_default: pwm0_pwm2_default {
++					pinmux = <PIN_PB5__PWMH2>,
++						 <PIN_PB6__PWML2>;
++					bias-pull-up;
++				};
++			};
++
++			classd: classd@fc048000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_classd_default>;
++				atmel,pwm-type = "diff";
++				atmel,non-overlap-time = <10>;
++				status = "disabled";
++			};
++
++			can1: can@fc050000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_can1_default>;
++				status = "disabled";
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/acme-rr-sdio.dts b/arch/arm/boot/dts/acme-rr-sdio.dts
+new file mode 100644
+index 000000000..b9dfdc522
+--- /dev/null
++++ b/arch/arm/boot/dts/acme-rr-sdio.dts
+@@ -0,0 +1,528 @@
++/*
++ * acme-roadrunner-sdio.dts - Device Tree file for Acme Systems
++ * RoadRunner SOM with SDIO on MMC0
++ *
++ *  Copyright (C) 2015 Atmel,
++ *                2015 Nicolas Ferre <nicolas.ferre@atmel.com>
++ *                2020 Sergio Tanzilli <tanzilli@acmesystems.it>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This file is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This file is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++/dts-v1/;
++#include "sama5d2.dtsi"
++#include "sama5d2-pinfunc.h"
++#include <dt-bindings/mfd/atmel-flexcom.h>
++#include <dt-bindings/gpio/gpio.h>
++
++
++
++/ {
++	model = "Acme Systems SAMA5D2 Roadrunner";
++	compatible = "atmel,sama5d2-roadrunner", "atmel,sama5d27","atmel,sama5d2", "atmel,sama5";
++
++	bootargs = "mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	clocks {
++		slow_xtal {
++			clock-frequency = <32768>;
++		};
++
++		main_xtal {
++			clock-frequency = <12000000>;
++		};
++	};
++
++	ahb {
++		usb0: gadget@300000 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usba_vbus>;
++			status = "okay";
++		};
++
++		usb1: ohci@400000 {
++			num-ports = <3>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usb_default>;
++			status = "okay";
++		};
++
++		usb2: ehci@500000 {
++			status = "okay";
++		};
++
++		/* MicroSD on Berta Board */
++
++		sdmmc1: sdio-host@b0000000 {
++			bus-width = <4>;
++			pinctrl-names = "default";
++			no-1-8-v;
++			non-removable;
++			pinctrl-0 = <&pinctrl_sdmmc1_default>;
++			status = "okay"; /* conflict with qspi0 */
++		};
++
++		/* sdio bus for Wifi module */
++
++		sdmmc0: sdio-host@a0000000 {
++			bus-width = <4>;
++			pinctrl-names = "default";
++			no-1-8-v;
++			non-removable;
++			pinctrl-0 = <&pinctrl_sdmmc0_default>;
++			status = "okay";
++
++			/*
++			 vmmc-supply = <&vcc_mmc1_reg>;
++			 vqmmc-supply = <&vcc_3v3_reg>;
++			*/	
++
++			brcmf: bcrmf@1 {
++				compatible = "brcm,bcm4329-fmac";
++				reg = <1>;
++				brcm,drive-strength = <6>;
++			};
++			
++			
++			 /*	
++			 slot@0 {
++				 reg = <0>;
++				 bus-width = <4>;
++			 };
++			 */
++
++			 /*wilc_sdio@0{
++				 compatible = "microchip,wilc1000", "microchip,wilc3000", "atmel,wilc_sdio";
++				 status = "okay";
++				 reg = <0>;
++				 bus-width = <4>;
++			 };*/
++ 
++
++			
++		};
++
++		apb {
++			spi0: spi@f8000000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_spi0_default>;
++				status = "disabled";
++			};
++
++			macb0: ethernet@f8008000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_macb0_default &pinctrl_macb0_phy_irq>;
++				phy-mode = "rmii";
++				status = "okay";
++
++				ethernet-phy@1 {
++					reg = <0x1>;
++					interrupt-parent = <&pioA>;
++					interrupts = <73 IRQ_TYPE_LEVEL_LOW>;
++					/*interrupts = <PIN_PC9 IRQ_TYPE_LEVEL_LOW>;*/
++				};
++			};
++
++			tcb0: timer@f800c000 {
++				timer0: timer@0 {
++					compatible = "atmel,tcb-timer";
++					reg = <0>;
++				};
++
++				timer1: timer@1 {
++					compatible = "atmel,tcb-timer";
++					reg = <1>;
++				};
++			};
++
++			uart1: serial@f8020000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_uart1_default>;
++				atmel,use-dma-rx;
++				atmel,use-dma-tx;
++				status = "okay";
++			};
++
++			i2c0: i2c@f8028000 {
++				dmas = <0>, <0>;
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_i2c0_default>;
++				i2c-sda-hold-time-ns = <350>;
++				status = "disabled";
++			};
++
++			pwm0: pwm@f802c000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_pwm0_pwm2_default>;
++				status = "disabled"; 
++			};
++
++			flx0: flexcom@f8034000 {
++				atmel,flexcom-mode = <ATMEL_FLEXCOM_MODE_USART>;
++				status = "disabled"; /* conflict with ISC_D2 & ISC_D3 data pins */
++
++				uart5: serial@200 {
++					compatible = "atmel,at91sam9260-usart";
++					reg = <0x200 0x200>;
++					interrupts = <19 IRQ_TYPE_LEVEL_HIGH 7>;
++					clocks = <&flx0_clk>;
++					clock-names = "usart";
++					pinctrl-names = "default";
++					pinctrl-0 = <&pinctrl_flx0_default>;
++					atmel,fifo-size = <32>;
++					status = "disabled";
++				};
++			};
++
++			shdwc@f8048010 {
++				atmel,shdwc-debouncer = <976>;
++				atmel,wakeup-rtc-timer;
++
++				input@0 {
++					reg = <0>;
++					atmel,wakeup-type = "low";
++				};
++			};
++
++			watchdog@f8048040 {
++				status = "okay";
++			};
++
++			can0: can@f8054000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_can0_default>;
++				status = "disabled";
++			};
++
++			uart3: serial@fc008000 {
++				atmel,use-dma-rx;
++				atmel,use-dma-tx;
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_uart3_default>;
++				status = "disabled";
++			};
++
++			flx4: flexcom@fc018000 {
++				atmel,flexcom-mode = <ATMEL_FLEXCOM_MODE_TWI>;
++				status = "disabled";
++
++				i2c2: i2c@600 {
++					compatible = "atmel,sama5d2-i2c";
++					reg = <0x600 0x200>;
++					interrupts = <23 IRQ_TYPE_LEVEL_HIGH 7>;
++					dmas = <0>, <0>;
++					dma-names = "tx", "rx";
++					#address-cells = <1>;
++					#size-cells = <0>;
++					clocks = <&flx4_clk>;
++					pinctrl-names = "default";
++					pinctrl-0 = <&pinctrl_flx4_default>;
++					atmel,fifo-size = <16>;
++					status = "disabled";
++				};
++			};
++
++			i2c1: i2c@fc028000 {
++				dmas = <0>, <0>;
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_i2c1_default>;
++				status = "disabled";
++			};
++
++			vddin_3v3: fixed-regulator-vddin_3v3 {
++				compatible = "regulator-fixed";
++
++				regulator-name = "VDDIN_3V3";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				status = "okay";
++			};
++
++			vddana: fixed-regulator-vddana {
++				compatible = "regulator-fixed";
++
++				regulator-name = "VDDANA";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				vin-supply = <&vddin_3v3>;
++				status = "okay";
++			};
++
++			advref: fixed-regulator-advref {
++				compatible = "regulator-fixed";
++
++				regulator-name = "advref";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				vin-supply = <&vddana>;
++				status = "okay";
++			};
++
++			adc: adc@fc030000 {
++				vddana-supply = <&vddana>; 
++				vref-supply =  <&vddana>; 
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_adc_default>;
++				status = "okay";
++			};
++
++			pinctrl@fc038000 {
++				/*
++				 * There is no real pinmux for ADC, if the pin
++				 * is not requested by another peripheral then
++				 * the muxing is done when channel is enabled.
++				 * Requesting pins for ADC is GPIO is
++				 * encouraged to prevent conflicts and to
++				 * disable bias in order to be in the same
++				 * state when the pin is not muxed to the adc.
++				 */
++				pinctrl_adc_default: adc_default {
++					pinmux = <PIN_PD19__GPIO>,
++						<PIN_PD20__GPIO>,
++						<PIN_PD21__GPIO>,
++						<PIN_PD22__GPIO>,
++						<PIN_PD23__GPIO>,
++						<PIN_PD24__GPIO>,
++						<PIN_PD25__GPIO>,
++						<PIN_PD26__GPIO>,
++						<PIN_PD27__GPIO>,
++						<PIN_PD28__GPIO>,
++						<PIN_PD29__GPIO>,
++						<PIN_PD30__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_can0_default: can0_default {
++					pinmux = <PIN_PC10__CANTX0>,
++						 <PIN_PC11__CANRX0>;
++					bias-disable;
++				};
++
++				pinctrl_can1_default: can1_default {
++					pinmux = <PIN_PC26__CANTX1>,
++						 <PIN_PC27__CANRX1>;
++					bias-disable;
++				};
++
++				/*
++				 * The ADTRG pin can work on any edge type.
++				 * In here it's being pulled up, so need to
++				 * connect it to ground to get an edge e.g.
++				 * Trigger can be configured on falling, rise
++				 * or any edge, and the pull-up can be changed
++				 * to pull-down or left floating according to
++				 * needs.
++				 */
++				pinctrl_adtrg_default: adtrg_default {
++					pinmux = <PIN_PD31__ADTRG>;
++					bias-pull-up;
++				};
++
++				pinctrl_charger_chglev: charger_chglev {
++					pinmux = <PIN_PA12__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_charger_irq: charger_irq {
++					pinmux = <PIN_PB13__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_charger_lbo: charger_lbo {
++					pinmux = <PIN_PC8__GPIO>;
++					bias-pull-up;
++				};
++
++				pinctrl_classd_default: classd_default {
++					pinmux = <PIN_PB1__CLASSD_R0>,
++						 <PIN_PB2__CLASSD_R1>,
++						 <PIN_PB3__CLASSD_R2>,
++						 <PIN_PB4__CLASSD_R3>;
++					bias-pull-up;
++				};
++
++				pinctrl_flx0_default: flx0_default {
++					pinmux = <PIN_PB28__FLEXCOM0_IO0>,
++						 <PIN_PB29__FLEXCOM0_IO1>;
++					bias-disable;
++				};
++
++				pinctrl_flx4_default: flx4_default {
++					pinmux = <PIN_PD12__FLEXCOM4_IO0>,
++						 <PIN_PD13__FLEXCOM4_IO1>;
++					bias-disable;
++				};
++
++				pinctrl_i2c0_default: i2c0_default {
++					pinmux = <PIN_PD21__TWD0>,
++						 <PIN_PD22__TWCK0>;
++					bias-disable;
++				};
++
++				pinctrl_i2c1_default: i2c1_default {
++					pinmux = <PIN_PD4__TWD1>,
++						 <PIN_PD5__TWCK1>;
++					bias-disable;
++				};
++
++				pinctrl_key_gpio_default: key_gpio_default {
++					pinmux = <PIN_PB9__GPIO>;
++					bias-pull-up;
++				};
++
++				pinctrl_macb0_default: macb0_default {
++					pinmux = <PIN_PB14__GTXCK>,
++						 <PIN_PB15__GTXEN>,
++						 <PIN_PB16__GRXDV>,
++						 <PIN_PB17__GRXER>,
++						 <PIN_PB18__GRX0>,
++						 <PIN_PB19__GRX1>,
++						 <PIN_PB20__GTX0>,
++						 <PIN_PB21__GTX1>,
++						 <PIN_PB22__GMDC>,
++						 <PIN_PB23__GMDIO>;
++					bias-disable;
++				};
++
++				pinctrl_macb0_phy_irq: macb0_phy_irq {
++					pinmux = <PIN_PC9__GPIO>;
++					bias-disable;
++				};
++
++				pinctrl_pdmic_default: pdmic_default {
++					pinmux = <PIN_PB26__PDMIC_DAT>,
++						<PIN_PB27__PDMIC_CLK>;
++					bias-disable;
++				};
++
++				pinctrl_sdmmc0_default: sdmmc0_default {
++					cmd_data {
++						pinmux = <PIN_PA1__SDMMC0_CMD>,
++							 <PIN_PA2__SDMMC0_DAT0>,
++							 <PIN_PA3__SDMMC0_DAT1>,
++							 <PIN_PA4__SDMMC0_DAT2>,
++							 <PIN_PA5__SDMMC0_DAT3>;
++						bias-disable;
++					};
++
++					ck_cd_rstn_vddsel {
++						pinmux = <PIN_PA0__SDMMC0_CK>;
++
 +						bias-disable;
 +					};
 +				};
@@ -1722,3 +2693,819 @@ index 000000000..5ab746dae
 +# CONFIG_SCHED_DEBUG is not set
 +# CONFIG_FTRACE is not set
 +CONFIG_DEBUG_USER=y
+diff --git a/arch/arm/configs/acme-rr-fbtft_defconfig b/arch/arm/configs/acme-rr-fbtft_defconfig
+new file mode 100644
+index 000000000..9cff78863
+--- /dev/null
++++ b/arch/arm/configs/acme-rr-fbtft_defconfig
+@@ -0,0 +1,222 @@
++# CONFIG_LOCALVERSION_AUTO is not set
++# CONFIG_SWAP is not set
++CONFIG_SYSVIPC=y
++CONFIG_NO_HZ_IDLE=y
++CONFIG_HIGH_RES_TIMERS=y
++CONFIG_LOG_BUF_SHIFT=14
++CONFIG_CGROUPS=y
++CONFIG_BLK_DEV_INITRD=y
++CONFIG_EMBEDDED=y
++CONFIG_SLAB=y
++CONFIG_ARCH_AT91=y
++CONFIG_SOC_SAMA5D2=y
++CONFIG_SOC_SAMA5D3=y
++CONFIG_SOC_SAMA5D4=y
++CONFIG_UACCESS_WITH_MEMCPY=y
++CONFIG_ZBOOT_ROM_TEXT=0x0
++CONFIG_ZBOOT_ROM_BSS=0x0
++CONFIG_ARM_APPENDED_DTB=y
++CONFIG_CMDLINE="mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0"
++CONFIG_KEXEC=y
++CONFIG_VFP=y
++CONFIG_NEON=y
++CONFIG_KERNEL_MODE_NEON=y
++CONFIG_PM_DEBUG=y
++CONFIG_PM_ADVANCED_DEBUG=y
++CONFIG_MODULES=y
++CONFIG_MODULE_FORCE_LOAD=y
++CONFIG_MODULE_UNLOAD=y
++CONFIG_MODULE_FORCE_UNLOAD=y
++# CONFIG_BLK_DEV_BSG is not set
++# CONFIG_IOSCHED_DEADLINE is not set
++# CONFIG_IOSCHED_CFQ is not set
++# CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++CONFIG_IP_MULTICAST=y
++CONFIG_IP_PNP=y
++CONFIG_IP_PNP_DHCP=y
++CONFIG_IP_PNP_BOOTP=y
++CONFIG_IP_PNP_RARP=y
++# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
++# CONFIG_INET_XFRM_MODE_TUNNEL is not set
++# CONFIG_INET_XFRM_MODE_BEET is not set
++# CONFIG_INET_DIAG is not set
++# CONFIG_INET6_XFRM_MODE_TRANSPORT is not set
++# CONFIG_INET6_XFRM_MODE_TUNNEL is not set
++# CONFIG_INET6_XFRM_MODE_BEET is not set
++CONFIG_IPV6_SIT_6RD=y
++CONFIG_CAN=y
++CONFIG_CAN_AT91=y
++CONFIG_CAN_M_CAN=y
++CONFIG_CFG80211=y
++CONFIG_MAC80211=y
++CONFIG_MAC80211_LEDS=y
++CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++# CONFIG_STANDALONE is not set
++# CONFIG_PREVENT_FIRMWARE_BUILD is not set
++CONFIG_MTD=y
++CONFIG_MTD_CMDLINE_PARTS=y
++CONFIG_MTD_BLOCK=y
++CONFIG_MTD_CFI=y
++CONFIG_MTD_M25P80=y
++CONFIG_MTD_NAND=y
++CONFIG_MTD_NAND_ATMEL=y
++CONFIG_MTD_SPI_NOR=y
++CONFIG_MTD_UBI=y
++CONFIG_MTD_UBI_GLUEBI=y
++CONFIG_BLK_DEV_LOOP=y
++CONFIG_BLK_DEV_RAM=y
++CONFIG_BLK_DEV_RAM_COUNT=4
++CONFIG_BLK_DEV_RAM_SIZE=8192
++CONFIG_ATMEL_TCLIB=y
++CONFIG_ATMEL_SSC=y
++CONFIG_EEPROM_AT24=y
++CONFIG_SCSI=y
++CONFIG_BLK_DEV_SD=y
++# CONFIG_SCSI_LOWLEVEL is not set
++CONFIG_NETDEVICES=y
++# CONFIG_NET_VENDOR_BROADCOM is not set
++CONFIG_MACB=y
++# CONFIG_NET_VENDOR_CIRRUS is not set
++# CONFIG_NET_VENDOR_FARADAY is not set
++# CONFIG_NET_VENDOR_INTEL is not set
++# CONFIG_NET_VENDOR_MARVELL is not set
++# CONFIG_NET_VENDOR_MICREL is not set
++# CONFIG_NET_VENDOR_MICROCHIP is not set
++# CONFIG_NET_VENDOR_NATSEMI is not set
++# CONFIG_NET_VENDOR_SEEQ is not set
++# CONFIG_NET_VENDOR_SMSC is not set
++# CONFIG_NET_VENDOR_STMICRO is not set
++# CONFIG_NET_VENDOR_WIZNET is not set
++CONFIG_MICREL_PHY=y
++# CONFIG_WLAN_VENDOR_ATMEL is not set
++CONFIG_B43=y
++CONFIG_BRCMFMAC=y
++CONFIG_LIBERTAS_THINFIRM=m
++CONFIG_LIBERTAS_THINFIRM_USB=m
++CONFIG_MWIFIEX=m
++CONFIG_MWIFIEX_SDIO=m
++CONFIG_MWIFIEX_USB=m
++CONFIG_RT2X00=m
++CONFIG_RT2500USB=m
++CONFIG_RT73USB=m
++CONFIG_RT2800USB=m
++CONFIG_RT2800USB_RT53XX=y
++CONFIG_RT2800USB_RT55XX=y
++CONFIG_RT2800USB_UNKNOWN=y
++CONFIG_RTL8187=m
++CONFIG_INPUT_EVDEV=y
++# CONFIG_KEYBOARD_ATKBD is not set
++CONFIG_KEYBOARD_QT1070=y
++CONFIG_KEYBOARD_GPIO=y
++# CONFIG_INPUT_MOUSE is not set
++CONFIG_INPUT_TOUCHSCREEN=y
++CONFIG_TOUCHSCREEN_ATMEL_MXT=y
++# CONFIG_SERIO is not set
++CONFIG_LEGACY_PTY_COUNT=4
++CONFIG_SERIAL_ATMEL=y
++CONFIG_SERIAL_ATMEL_CONSOLE=y
++CONFIG_HW_RANDOM=y
++CONFIG_I2C_CHARDEV=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_AT91=y
++CONFIG_I2C_GPIO=y
++CONFIG_SPI=y
++CONFIG_SPI_ATMEL=y
++CONFIG_SPI_GPIO=y
++CONFIG_SPI_SPIDEV=y
++CONFIG_GPIO_SYSFS=y
++CONFIG_POWER_RESET=y
++CONFIG_POWER_SUPPLY=y
++CONFIG_BATTERY_ACT8945A=y
++CONFIG_WATCHDOG=y
++CONFIG_AT91SAM9X_WATCHDOG=y
++CONFIG_SAMA5D4_WATCHDOG=y
++CONFIG_MFD_ACT8945A=y
++CONFIG_MFD_ATMEL_FLEXCOM=y
++CONFIG_MFD_ATMEL_HLCDC=y
++CONFIG_REGULATOR=y
++CONFIG_REGULATOR_FIXED_VOLTAGE=y
++CONFIG_REGULATOR_ACT8865=y
++CONFIG_REGULATOR_ACT8945A=y
++CONFIG_REGULATOR_PWM=m
++CONFIG_DRM=y
++CONFIG_DRM_ATMEL_HLCDC=y
++CONFIG_DRM_PANEL_SIMPLE=y
++CONFIG_LCD_CLASS_DEVICE=y
++# CONFIG_BACKLIGHT_GENERIC is not set
++CONFIG_BACKLIGHT_PWM=y
++CONFIG_FRAMEBUFFER_CONSOLE=y
++# CONFIG_HID_GENERIC is not set
++CONFIG_USB=y
++CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_ACM=y
++CONFIG_USB_STORAGE=y
++CONFIG_USB_SERIAL=y
++CONFIG_USB_SERIAL_GENERIC=y
++CONFIG_USB_SERIAL_FTDI_SIO=y
++CONFIG_USB_SERIAL_PL2303=y
++CONFIG_USB_GADGET=y
++CONFIG_USB_ATMEL_USBA=y
++CONFIG_USB_G_SERIAL=y
++CONFIG_MMC=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_PLTFM=y
++CONFIG_MMC_SDHCI_OF_AT91=y
++CONFIG_MMC_ATMELMCI=y
++CONFIG_NEW_LEDS=y
++CONFIG_LEDS_CLASS=y
++CONFIG_LEDS_GPIO=y
++CONFIG_LEDS_PWM=y
++CONFIG_LEDS_TRIGGER_TIMER=y
++CONFIG_LEDS_TRIGGER_HEARTBEAT=y
++CONFIG_LEDS_TRIGGER_GPIO=y
++CONFIG_RTC_CLASS=y
++CONFIG_RTC_DRV_AT91RM9200=y
++CONFIG_DMADEVICES=y
++CONFIG_AT_HDMAC=y
++CONFIG_AT_XDMAC=y
++CONFIG_STAGING=y
++CONFIG_FB_TFT=y
++CONFIG_WILC1000_SDIO=y
++# CONFIG_IOMMU_SUPPORT is not set
++CONFIG_IIO=y
++CONFIG_AT91_ADC=y
++CONFIG_AT91_SAMA5D2_ADC=y
++CONFIG_ENVELOPE_DETECTOR=m
++CONFIG_DPOT_DAC=m
++CONFIG_MCP4531=m
++CONFIG_PWM=y
++CONFIG_PWM_ATMEL=y
++CONFIG_PWM_ATMEL_HLCDC_PWM=y
++CONFIG_PWM_ATMEL_TCB=y
++CONFIG_EXT4_FS=y
++CONFIG_FANOTIFY=y
++CONFIG_VFAT_FS=y
++CONFIG_TMPFS=y
++CONFIG_UBIFS_FS=y
++CONFIG_UBIFS_FS_ADVANCED_COMPR=y
++CONFIG_NFS_FS=y
++CONFIG_ROOT_NFS=y
++CONFIG_NLS_CODEPAGE_437=y
++CONFIG_NLS_CODEPAGE_850=y
++CONFIG_NLS_ISO8859_1=y
++CONFIG_NLS_UTF8=y
++CONFIG_CRYPTO_USER_API_HASH=m
++CONFIG_CRYPTO_USER_API_SKCIPHER=m
++CONFIG_CRYPTO_DEV_ATMEL_AES=y
++CONFIG_CRYPTO_DEV_ATMEL_TDES=y
++CONFIG_CRYPTO_DEV_ATMEL_SHA=y
++CONFIG_STRIP_ASM_SYMS=y
++CONFIG_DEBUG_FS=y
++CONFIG_DEBUG_MEMORY_INIT=y
++# CONFIG_SCHED_DEBUG is not set
++# CONFIG_FTRACE is not set
++CONFIG_DEBUG_USER=y
+diff --git a/defconfig b/defconfig
+new file mode 100644
+index 000000000..ec6b3fa94
+--- /dev/null
++++ b/defconfig
+@@ -0,0 +1,206 @@
++# CONFIG_LOCALVERSION_AUTO is not set
++# CONFIG_SWAP is not set
++CONFIG_SYSVIPC=y
++CONFIG_NO_HZ_IDLE=y
++CONFIG_HIGH_RES_TIMERS=y
++CONFIG_LOG_BUF_SHIFT=14
++CONFIG_CGROUPS=y
++CONFIG_BLK_DEV_INITRD=y
++# CONFIG_SGETMASK_SYSCALL is not set
++CONFIG_EMBEDDED=y
++CONFIG_SLAB=y
++# CONFIG_SECCOMP is not set
++CONFIG_HZ_100=y
++CONFIG_KEXEC=y
++CONFIG_PM_DEBUG=y
++CONFIG_PM_ADVANCED_DEBUG=y
++# CONFIG_PCI is not set
++# CONFIG_FIRMWARE_MEMMAP is not set
++# CONFIG_VIRTUALIZATION is not set
++CONFIG_REFCOUNT_FULL=y
++CONFIG_MODULES=y
++CONFIG_MODULE_FORCE_LOAD=y
++CONFIG_MODULE_UNLOAD=y
++CONFIG_MODULE_FORCE_UNLOAD=y
++# CONFIG_BLK_DEV_BSG is not set
++# CONFIG_IOSCHED_DEADLINE is not set
++# CONFIG_IOSCHED_CFQ is not set
++# CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++CONFIG_IP_MULTICAST=y
++CONFIG_IP_PNP=y
++CONFIG_IP_PNP_DHCP=y
++CONFIG_IP_PNP_BOOTP=y
++CONFIG_IP_PNP_RARP=y
++# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
++# CONFIG_INET_XFRM_MODE_TUNNEL is not set
++# CONFIG_INET_XFRM_MODE_BEET is not set
++# CONFIG_INET_DIAG is not set
++# CONFIG_INET6_XFRM_MODE_TRANSPORT is not set
++# CONFIG_INET6_XFRM_MODE_TUNNEL is not set
++# CONFIG_INET6_XFRM_MODE_BEET is not set
++CONFIG_IPV6_SIT_6RD=y
++CONFIG_CAN=y
++CONFIG_CAN_M_CAN=y
++CONFIG_CFG80211=y
++CONFIG_MAC80211=y
++CONFIG_MAC80211_LEDS=y
++CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++# CONFIG_STANDALONE is not set
++# CONFIG_PREVENT_FIRMWARE_BUILD is not set
++CONFIG_MTD=y
++CONFIG_MTD_CMDLINE_PARTS=y
++CONFIG_MTD_BLOCK=y
++CONFIG_MTD_CFI=y
++CONFIG_MTD_M25P80=y
++CONFIG_MTD_NAND=y
++CONFIG_MTD_SPI_NOR=y
++CONFIG_MTD_UBI=y
++CONFIG_MTD_UBI_GLUEBI=y
++CONFIG_OF=y
++CONFIG_BLK_DEV_LOOP=y
++CONFIG_BLK_DEV_RAM=y
++CONFIG_BLK_DEV_RAM_COUNT=4
++CONFIG_BLK_DEV_RAM_SIZE=8192
++CONFIG_SRAM=y
++CONFIG_EEPROM_AT24=y
++CONFIG_SCSI=y
++CONFIG_BLK_DEV_SD=y
++# CONFIG_SCSI_LOWLEVEL is not set
++CONFIG_NETDEVICES=y
++# CONFIG_NET_VENDOR_BROADCOM is not set
++CONFIG_MACB=y
++# CONFIG_NET_VENDOR_INTEL is not set
++# CONFIG_NET_VENDOR_MARVELL is not set
++# CONFIG_NET_VENDOR_MICREL is not set
++# CONFIG_NET_VENDOR_MICROCHIP is not set
++# CONFIG_NET_VENDOR_NATSEMI is not set
++# CONFIG_NET_VENDOR_SEEQ is not set
++# CONFIG_NET_VENDOR_STMICRO is not set
++# CONFIG_NET_VENDOR_WIZNET is not set
++CONFIG_MICREL_PHY=y
++# CONFIG_WLAN_VENDOR_ATMEL is not set
++CONFIG_B43=y
++CONFIG_BRCMFMAC=y
++CONFIG_LIBERTAS_THINFIRM=m
++CONFIG_LIBERTAS_THINFIRM_USB=m
++CONFIG_MWIFIEX=m
++CONFIG_MWIFIEX_SDIO=m
++CONFIG_MWIFIEX_USB=m
++CONFIG_RT2X00=m
++CONFIG_RT2500USB=m
++CONFIG_RT73USB=m
++CONFIG_RT2800USB=m
++CONFIG_RT2800USB_RT53XX=y
++CONFIG_RT2800USB_RT55XX=y
++CONFIG_RT2800USB_UNKNOWN=y
++CONFIG_RTL8187=m
++CONFIG_INPUT_EVDEV=y
++# CONFIG_KEYBOARD_ATKBD is not set
++CONFIG_KEYBOARD_QT1070=y
++CONFIG_KEYBOARD_GPIO=y
++# CONFIG_INPUT_MOUSE is not set
++CONFIG_INPUT_TOUCHSCREEN=y
++CONFIG_TOUCHSCREEN_ATMEL_MXT=y
++# CONFIG_SERIO is not set
++CONFIG_LEGACY_PTY_COUNT=4
++CONFIG_HW_RANDOM=y
++CONFIG_I2C_CHARDEV=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_GPIO=y
++CONFIG_SPI=y
++CONFIG_SPI_GPIO=y
++CONFIG_SPI_SPIDEV=y
++CONFIG_PINCTRL=y
++CONFIG_GPIOLIB=y
++CONFIG_GPIO_SYSFS=y
++CONFIG_POWER_RESET=y
++CONFIG_POWER_SUPPLY=y
++CONFIG_BATTERY_ACT8945A=y
++CONFIG_WATCHDOG=y
++CONFIG_WATCHDOG_CORE=y
++CONFIG_MFD_ACT8945A=y
++CONFIG_MFD_ATMEL_FLEXCOM=y
++CONFIG_MFD_ATMEL_HLCDC=y
++CONFIG_MFD_SYSCON=y
++CONFIG_REGULATOR=y
++CONFIG_REGULATOR_FIXED_VOLTAGE=y
++CONFIG_REGULATOR_ACT8865=y
++CONFIG_REGULATOR_ACT8945A=y
++CONFIG_REGULATOR_PWM=m
++CONFIG_DRM=y
++CONFIG_DRM_PANEL_SIMPLE=y
++CONFIG_LCD_CLASS_DEVICE=y
++# CONFIG_BACKLIGHT_GENERIC is not set
++CONFIG_BACKLIGHT_PWM=y
++CONFIG_FRAMEBUFFER_CONSOLE=y
++CONFIG_LOGO=y
++# CONFIG_HID_GENERIC is not set
++CONFIG_USB=y
++CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_ACM=y
++CONFIG_USB_STORAGE=y
++CONFIG_USB_SERIAL=y
++CONFIG_USB_SERIAL_GENERIC=y
++CONFIG_USB_SERIAL_FTDI_SIO=y
++CONFIG_USB_SERIAL_PL2303=y
++CONFIG_USB_GADGET=y
++CONFIG_USB_G_SERIAL=y
++CONFIG_MMC=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_PLTFM=y
++CONFIG_MMC_SDHCI_OF_AT91=y
++CONFIG_NEW_LEDS=y
++CONFIG_LEDS_CLASS=y
++CONFIG_LEDS_GPIO=y
++CONFIG_LEDS_PWM=y
++CONFIG_LEDS_TRIGGER_TIMER=y
++CONFIG_LEDS_TRIGGER_HEARTBEAT=y
++CONFIG_LEDS_TRIGGER_GPIO=y
++CONFIG_RTC_CLASS=y
++# CONFIG_RTC_DRV_CMOS is not set
++CONFIG_DMADEVICES=y
++CONFIG_STAGING=y
++CONFIG_FB_TFT=y
++CONFIG_FB_TFT_ILI9341=y
++CONFIG_WILC1000_SDIO=y
++# CONFIG_IOMMU_SUPPORT is not set
++CONFIG_MEMORY=y
++CONFIG_IIO=y
++CONFIG_IIO_BUFFER=y
++CONFIG_IIO_KFIFO_BUF=y
++CONFIG_IIO_TRIGGER=y
++CONFIG_ENVELOPE_DETECTOR=m
++CONFIG_DPOT_DAC=m
++CONFIG_MCP4531=m
++CONFIG_PWM=y
++CONFIG_EXT4_FS=y
++CONFIG_FANOTIFY=y
++CONFIG_VFAT_FS=y
++CONFIG_TMPFS=y
++CONFIG_UBIFS_FS=y
++CONFIG_UBIFS_FS_ADVANCED_COMPR=y
++CONFIG_NFS_FS=y
++CONFIG_ROOT_NFS=y
++CONFIG_NLS_CODEPAGE_437=y
++CONFIG_NLS_CODEPAGE_850=y
++CONFIG_NLS_ISO8859_1=y
++CONFIG_NLS_UTF8=y
++CONFIG_CRYPTO_DES=y
++CONFIG_CRYPTO_USER_API_HASH=m
++CONFIG_CRYPTO_USER_API_SKCIPHER=m
++CONFIG_FRAME_WARN=1024
++CONFIG_STRIP_ASM_SYMS=y
++# CONFIG_UNUSED_SYMBOLS is not set
++CONFIG_DEBUG_FS=y
++CONFIG_DEBUG_MEMORY_INIT=y
++# CONFIG_SCHED_DEBUG is not set
++# CONFIG_FTRACE is not set
++# CONFIG_STRICT_DEVMEM is not set
+diff --git a/goscp.sh b/goscp.sh
+new file mode 100644
+index 000000000..74c08e31f
+--- /dev/null
++++ b/goscp.sh
+@@ -0,0 +1,5 @@
++devicetree="acme-roadrunner-spi-display"
++make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- $devicetree.dtb
++make -j8 ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage
++sudo scp arch/arm/boot/dts/$devicetree.dtb root@192.168.1.44:/boot/acme-roadrunner.dtb
++sudo scp arch/arm/boot/zImage root@192.168.1.44:/boot
+diff --git a/modules/lib/modules/4.19.78+/build b/modules/lib/modules/4.19.78+/build
+new file mode 120000
+index 000000000..2f8b77c61
+--- /dev/null
++++ b/modules/lib/modules/4.19.78+/build
+@@ -0,0 +1 @@
++/home/tanzilli/roadrunner/linux-4.19.78
+\ No newline at end of file
+diff --git a/modules/lib/modules/4.19.78+/modules.alias b/modules/lib/modules/4.19.78+/modules.alias
+new file mode 100644
+index 000000000..0f5eb0bf3
+--- /dev/null
++++ b/modules/lib/modules/4.19.78+/modules.alias
+@@ -0,0 +1,241 @@
++# Aliases extracted from modules themselves.
++alias crypto-echainiv echainiv
++alias echainiv echainiv
++alias net-pf-38 af_alg
++alias platform:pwm-regulator pwm_regulator
++alias of:N*T*Cpwm-regulatorC* pwm_regulator
++alias of:N*T*Cpwm-regulator pwm_regulator
++alias usb:v05A3p8388d*dc*dsc*dp*ic*isc*ip*in* libertas_tf_usb
++alias usb:v1286p2001d*dc*dsc*dp*ic*isc*ip*in* libertas_tf_usb
++alias sdio:c*v02DFd9141* mwifiex_sdio
++alias sdio:c*v02DFd9139* mwifiex_sdio
++alias sdio:c*v02DFd9135* mwifiex_sdio
++alias sdio:c*v02DFd912D* mwifiex_sdio
++alias sdio:c*v02DFd9129* mwifiex_sdio
++alias sdio:c*v02DFd9119* mwifiex_sdio
++alias sdio:c*v02DFd9116* mwifiex_sdio
++alias usb:v1286p204Ed*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
++alias usb:v1286p2052d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
++alias usb:v1286p204Ad*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
++alias usb:v1286p2049d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
++alias usb:v1286p2044d*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
++alias usb:v1286p2043d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
++alias usb:v1286p2042d*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
++alias usb:v1286p2041d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
++alias usb:v1737p0073d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v1B75p8187d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v18E8p6232d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v13D1pABE6d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v1371p9401d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v114Bp0150d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0DF6p0029d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0DF6p0028d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0DF6p000Dd*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v03F0pCA02d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0846p4260d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0846p6A00d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0846p6100d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0789p010Cd*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0769p11F2d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0BDAp8198d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0BDAp8197d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0BDAp8189d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0BDAp8187d*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v050Dp705Ed*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias usb:v0B05p171Dd*dc*dsc*dp*ic*isc*ip*in* rtl8187
++alias of:N*T*Caxentia,tse850-envelope-detectorC* envelope_detector
++alias of:N*T*Caxentia,tse850-envelope-detector envelope_detector
++alias of:N*T*Cdpot-dacC* dpot_dac
++alias of:N*T*Cdpot-dac dpot_dac
++alias i2c:mcp4662-104 mcp4531
++alias i2c:mcp4662-503 mcp4531
++alias i2c:mcp4662-103 mcp4531
++alias i2c:mcp4662-502 mcp4531
++alias i2c:mcp4661-104 mcp4531
++alias i2c:mcp4661-503 mcp4531
++alias i2c:mcp4661-103 mcp4531
++alias i2c:mcp4661-502 mcp4531
++alias i2c:mcp4652-104 mcp4531
++alias i2c:mcp4652-503 mcp4531
++alias i2c:mcp4652-103 mcp4531
++alias i2c:mcp4652-502 mcp4531
++alias i2c:mcp4651-104 mcp4531
++alias i2c:mcp4651-503 mcp4531
++alias i2c:mcp4651-103 mcp4531
++alias i2c:mcp4651-502 mcp4531
++alias i2c:mcp4642-104 mcp4531
++alias i2c:mcp4642-503 mcp4531
++alias i2c:mcp4642-103 mcp4531
++alias i2c:mcp4642-502 mcp4531
++alias i2c:mcp4641-104 mcp4531
++alias i2c:mcp4641-503 mcp4531
++alias i2c:mcp4641-103 mcp4531
++alias i2c:mcp4641-502 mcp4531
++alias i2c:mcp4632-104 mcp4531
++alias i2c:mcp4632-503 mcp4531
++alias i2c:mcp4632-103 mcp4531
++alias i2c:mcp4632-502 mcp4531
++alias i2c:mcp4631-104 mcp4531
++alias i2c:mcp4631-503 mcp4531
++alias i2c:mcp4631-103 mcp4531
++alias i2c:mcp4631-502 mcp4531
++alias i2c:mcp4562-104 mcp4531
++alias i2c:mcp4562-503 mcp4531
++alias i2c:mcp4562-103 mcp4531
++alias i2c:mcp4562-502 mcp4531
++alias i2c:mcp4561-104 mcp4531
++alias i2c:mcp4561-503 mcp4531
++alias i2c:mcp4561-103 mcp4531
++alias i2c:mcp4561-502 mcp4531
++alias i2c:mcp4552-104 mcp4531
++alias i2c:mcp4552-503 mcp4531
++alias i2c:mcp4552-103 mcp4531
++alias i2c:mcp4552-502 mcp4531
++alias i2c:mcp4551-104 mcp4531
++alias i2c:mcp4551-503 mcp4531
++alias i2c:mcp4551-103 mcp4531
++alias i2c:mcp4551-502 mcp4531
++alias i2c:mcp4542-104 mcp4531
++alias i2c:mcp4542-503 mcp4531
++alias i2c:mcp4542-103 mcp4531
++alias i2c:mcp4542-502 mcp4531
++alias i2c:mcp4541-104 mcp4531
++alias i2c:mcp4541-503 mcp4531
++alias i2c:mcp4541-103 mcp4531
++alias i2c:mcp4541-502 mcp4531
++alias i2c:mcp4532-104 mcp4531
++alias i2c:mcp4532-503 mcp4531
++alias i2c:mcp4532-103 mcp4531
++alias i2c:mcp4532-502 mcp4531
++alias i2c:mcp4531-104 mcp4531
++alias i2c:mcp4531-503 mcp4531
++alias i2c:mcp4531-103 mcp4531
++alias i2c:mcp4531-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4662-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4662-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4662-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4662-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4662-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4662-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4662-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4662-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4661-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4661-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4661-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4661-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4661-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4661-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4661-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4661-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4652-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4652-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4652-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4652-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4652-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4652-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4652-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4652-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4651-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4651-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4651-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4651-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4651-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4651-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4651-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4651-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4642-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4642-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4642-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4642-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4642-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4642-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4642-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4642-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4641-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4641-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4641-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4641-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4641-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4641-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4641-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4641-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4632-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4632-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4632-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4632-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4632-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4632-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4632-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4632-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4631-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4631-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4631-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4631-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4631-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4631-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4631-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4631-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4562-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4562-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4562-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4562-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4562-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4562-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4562-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4562-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4561-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4561-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4561-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4561-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4561-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4561-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4561-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4561-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4552-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4552-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4552-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4552-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4552-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4552-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4552-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4552-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4551-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4551-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4551-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4551-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4551-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4551-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4551-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4551-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4542-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4542-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4542-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4542-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4542-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4542-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4542-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4542-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4541-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4541-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4541-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4541-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4541-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4541-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4541-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4541-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4532-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4532-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4532-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4532-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4532-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4532-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4532-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4532-502 mcp4531
++alias of:N*T*Cmicrochip,mcp4531-104C* mcp4531
++alias of:N*T*Cmicrochip,mcp4531-104 mcp4531
++alias of:N*T*Cmicrochip,mcp4531-503C* mcp4531
++alias of:N*T*Cmicrochip,mcp4531-503 mcp4531
++alias of:N*T*Cmicrochip,mcp4531-103C* mcp4531
++alias of:N*T*Cmicrochip,mcp4531-103 mcp4531
++alias of:N*T*Cmicrochip,mcp4531-502C* mcp4531
++alias of:N*T*Cmicrochip,mcp4531-502 mcp4531
+diff --git a/modules/lib/modules/4.19.78+/modules.dep b/modules/lib/modules/4.19.78+/modules.dep
+new file mode 100644
+index 000000000..b9565e852
+--- /dev/null
++++ b/modules/lib/modules/4.19.78+/modules.dep
+@@ -0,0 +1,15 @@
++kernel/crypto/echainiv.ko:
++kernel/crypto/af_alg.ko:
++kernel/crypto/algif_hash.ko: kernel/crypto/af_alg.ko
++kernel/crypto/algif_skcipher.ko: kernel/crypto/af_alg.ko
++kernel/drivers/regulator/pwm-regulator.ko:
++kernel/drivers/misc/eeprom/eeprom_93cx6.ko:
++kernel/drivers/net/wireless/marvell/libertas_tf/libertas_tf.ko:
++kernel/drivers/net/wireless/marvell/libertas_tf/libertas_tf_usb.ko: kernel/drivers/net/wireless/marvell/libertas_tf/libertas_tf.ko
++kernel/drivers/net/wireless/marvell/mwifiex/mwifiex.ko:
++kernel/drivers/net/wireless/marvell/mwifiex/mwifiex_sdio.ko: kernel/drivers/net/wireless/marvell/mwifiex/mwifiex.ko
++kernel/drivers/net/wireless/marvell/mwifiex/mwifiex_usb.ko: kernel/drivers/net/wireless/marvell/mwifiex/mwifiex.ko
++kernel/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8187.ko: kernel/drivers/misc/eeprom/eeprom_93cx6.ko
++kernel/drivers/iio/adc/envelope-detector.ko:
++kernel/drivers/iio/dac/dpot-dac.ko:
++kernel/drivers/iio/potentiometer/mcp4531.ko:
+diff --git a/modules/lib/modules/4.19.78+/modules.devname b/modules/lib/modules/4.19.78+/modules.devname
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/modules/lib/modules/4.19.78+/modules.softdep b/modules/lib/modules/4.19.78+/modules.softdep
+new file mode 100644
+index 000000000..5554ccca7
+--- /dev/null
++++ b/modules/lib/modules/4.19.78+/modules.softdep
+@@ -0,0 +1 @@
++# Soft dependencies extracted from modules themselves.
+diff --git a/modules/lib/modules/4.19.78+/modules.symbols b/modules/lib/modules/4.19.78+/modules.symbols
+new file mode 100644
+index 000000000..73a2d3831
+--- /dev/null
++++ b/modules/lib/modules/4.19.78+/modules.symbols
+@@ -0,0 +1,65 @@
++# Aliases for symbols, used by symbol_request().
++alias symbol:mwifiex_main_process mwifiex
++alias symbol:af_alg_release af_alg
++alias symbol:lbtf_cmd_response_rx libertas_tf
++alias symbol:lbtf_bcn_sent libertas_tf
++alias symbol:af_alg_make_sg af_alg
++alias symbol:af_alg_cmsg_send af_alg
++alias symbol:af_alg_free_resources af_alg
++alias symbol:mwifiex_enable_hs mwifiex
++alias symbol:eeprom_93cx6_wren eeprom_93cx6
++alias symbol:af_alg_link_sg af_alg
++alias symbol:mwifiex_write_data_complete mwifiex
++alias symbol:mwifiex_process_hs_config mwifiex
++alias symbol:mwifiex_queue_main_work mwifiex
++alias symbol:mwifiex_cancel_hs mwifiex
++alias symbol:af_alg_wmem_wakeup af_alg
++alias symbol:eeprom_93cx6_multiread eeprom_93cx6
++alias symbol:lbtf_rx libertas_tf
++alias symbol:af_alg_count_tsgl af_alg
++alias symbol:mwifiex_add_card mwifiex
++alias symbol:mwifiex_alloc_dma_align_buf mwifiex
++alias symbol:mwifiex_process_sleep_confirm_resp mwifiex
++alias symbol:mwifiex_shutdown_sw mwifiex
++alias symbol:lbtf_debug libertas_tf
++alias symbol:af_alg_sendmsg af_alg
++alias symbol:eeprom_93cx6_readb eeprom_93cx6
++alias symbol:lbtf_add_card libertas_tf
++alias symbol:lbtf_cmd_copyback libertas_tf
++alias symbol:mwifiex_remove_card mwifiex
++alias symbol:mwifiex_dnld_fw mwifiex
++alias symbol:eeprom_93cx6_write eeprom_93cx6
++alias symbol:__lbtf_cmd libertas_tf
++alias symbol:mwifiex_prepare_fw_dump_info mwifiex
++alias symbol:af_alg_alloc_tsgl af_alg
++alias symbol:af_alg_async_cb af_alg
++alias symbol:mwifiex_reinit_sw mwifiex
++alias symbol:af_alg_pull_tsgl af_alg
++alias symbol:mwifiex_handle_rx_packet mwifiex
++alias symbol:af_alg_alloc_areq af_alg
++alias symbol:af_alg_release_parent af_alg
++alias symbol:af_alg_data_wakeup af_alg
++alias symbol:mwifiex_deauthenticate_all mwifiex
++alias symbol:mwifiex_del_virtual_intf mwifiex
++alias symbol:af_alg_register_type af_alg
++alias symbol:af_alg_sendpage af_alg
++alias symbol:af_alg_free_sg af_alg
++alias symbol:af_alg_wait_for_wmem af_alg
++alias symbol:mwifiex_init_shutdown_fw mwifiex
++alias symbol:lbtf_send_tx_feedback libertas_tf
++alias symbol:mwifiex_fw_dump_event mwifiex
++alias symbol:lbtf_remove_card libertas_tf
++alias symbol:af_alg_accept af_alg
++alias symbol:mwifiex_drv_info_dump mwifiex
++alias symbol:mwifiex_upload_device_dump mwifiex
++alias symbol:mwifiex_multi_chan_resync mwifiex
++alias symbol:mwifiex_add_virtual_intf mwifiex
++alias symbol:af_alg_poll af_alg
++alias symbol:af_alg_wait_for_data af_alg
++alias symbol:af_alg_unregister_type af_alg
++alias symbol:mwifiex_disable_auto_ds mwifiex
++alias symbol:eeprom_93cx6_read eeprom_93cx6
++alias symbol:af_alg_free_areq_sgls af_alg
++alias symbol:af_alg_get_rsgl af_alg
++alias symbol:eeprom_93cx6_multireadb eeprom_93cx6
++alias symbol:_mwifiex_dbg mwifiex
+diff --git a/modules/lib/modules/4.19.78+/source b/modules/lib/modules/4.19.78+/source
+new file mode 120000
+index 000000000..2f8b77c61
+--- /dev/null
++++ b/modules/lib/modules/4.19.78+/source
+@@ -0,0 +1 @@
++/home/tanzilli/roadrunner/linux-4.19.78
+\ No newline at end of file
