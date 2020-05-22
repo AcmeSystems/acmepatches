@@ -1269,10 +1269,10 @@ index 000000000..afc83deeb
 +};
 diff --git a/arch/arm/boot/dts/acme-rr-fbtft.dts b/arch/arm/boot/dts/acme-rr-fbtft.dts
 new file mode 100644
-index 000000000..59445f948
+index 000000000..0405152f0
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-rr-fbtft.dts
-@@ -0,0 +1,429 @@
+@@ -0,0 +1,473 @@
 +/*
 + * Device Tree file for Acme Systems for RoadRunner SOM 
 + * Test with small SPI display
@@ -1375,12 +1375,15 @@ index 000000000..59445f948
 +
 +		apb {
 +		
-+			/* First display */
++		
++			/* Both displays on SPI 1 port */
 +
-+			spi0: spi@f8000000 {
++			spi1: spi@fc000000 {
 +				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_spi0_default>;
++				pinctrl-0 = <&pinctrl_spi1_default>;
 +				status = "okay";
++
++				/* First display */
 +
 +				device@0 {
 +					rotate = <90>;
@@ -1395,28 +1398,21 @@ index 000000000..59445f948
 +					reset-gpios = <&pioA PIN_PA13 0>;
 +					dc-gpios = <&pioA PIN_PA12 0>;
 +				};
-+			};
 +
++				/* Second display */
 +
-+			/* Second display */
-+
-+			spi1: spi@fc000000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_spi1_default>;
-+				status = "okay";
-+
-+				device@0 {
++				device@1 {
 +					rotate = <90>;
 +					bgr;
 +					fps = <30>;
 +					compatible = "ilitek,ili9341";
 +					spi-max-frequency = <50000000>;   
-+					reg = <0>;
++					reg = <1>;
 +					regwidth = <8>;
 +					buswidth = <8>;
 +					verbose = <3>;
-+					reset-gpios = <&pioA PIN_PC5 0>;
-+					dc-gpios = <&pioA PIN_PC6 0>;
++					reset-gpios = <&pioA PIN_PA11 0>;
++					dc-gpios = <&pioA PIN_PA8 0>;
 +				};
 +			};
 +
@@ -1468,6 +1464,53 @@ index 000000000..59445f948
 +				status = "okay";
 +			};
 +
++			vddin_3v3: fixed-regulator-vddin_3v3 {
++				compatible = "regulator-fixed";
++
++				regulator-name = "VDDIN_3V3";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				status = "okay";
++			};
++
++			vddana: fixed-regulator-vddana {
++				compatible = "regulator-fixed";
++
++				regulator-name = "VDDANA";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				vin-supply = <&vddin_3v3>;
++				status = "okay";
++			};
++
++			advref: fixed-regulator-advref {
++				compatible = "regulator-fixed";
++
++				regulator-name = "advref";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++				regulator-boot-on;
++				vin-supply = <&vddana>;
++				status = "okay";
++			};
++
++			adc: adc@fc030000 {
++				vddana-supply = <&vddana>; 
++				vref-supply =  <&vddana>; 
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_adc_default>;
++				
++				atmel,adc-clock-rate=<1000000>;
++				atmel,adc-ts-wires=<4>;
++				atmel,adc-ts-pressure-threshold=<10000>;
++				
++				status = "okay";
++			};
 +
 +			pinctrl@fc038000 {
 +				/*
@@ -1653,7 +1696,8 @@ index 000000000..59445f948
 +					pinmux = <PIN_PC1__SPI1_SPCK>,
 +							<PIN_PC2__SPI1_MOSI>,
 +							<PIN_PC3__SPI1_MISO>,
-+							<PIN_PC4__SPI1_NPCS0>;
++							<PIN_PC4__SPI1_NPCS0>,
++							<PIN_PC5__SPI1_NPCS1>;
 +					bias-disable;
 +				};
 +
@@ -2472,10 +2516,10 @@ index 000000000..5043a3bbb
 +CONFIG_DEBUG_USER=y
 diff --git a/arch/arm/configs/acme-roadrunner_defconfig b/arch/arm/configs/acme-roadrunner_defconfig
 new file mode 100644
-index 000000000..5ab746dae
+index 000000000..9850d5dc2
 --- /dev/null
 +++ b/arch/arm/configs/acme-roadrunner_defconfig
-@@ -0,0 +1,217 @@
+@@ -0,0 +1,219 @@
 +# CONFIG_LOCALVERSION_AUTO is not set
 +# CONFIG_SWAP is not set
 +CONFIG_SYSVIPC=y
@@ -2553,7 +2597,6 @@ index 000000000..5ab746dae
 +CONFIG_BLK_DEV_RAM_SIZE=8192
 +CONFIG_ATMEL_TCLIB=y
 +CONFIG_ATMEL_SSC=y
-+CONFIG_EEPROM_AT24=y
 +CONFIG_SCSI=y
 +CONFIG_BLK_DEV_SD=y
 +# CONFIG_SCSI_LOWLEVEL is not set
@@ -2572,19 +2615,22 @@ index 000000000..5ab746dae
 +# CONFIG_NET_VENDOR_STMICRO is not set
 +# CONFIG_NET_VENDOR_WIZNET is not set
 +CONFIG_MICREL_PHY=y
-+CONFIG_LIBERTAS_THINFIRM=m
-+CONFIG_LIBERTAS_THINFIRM_USB=m
-+CONFIG_MWIFIEX=m
-+CONFIG_MWIFIEX_SDIO=m
-+CONFIG_MWIFIEX_USB=m
-+CONFIG_RT2X00=m
-+CONFIG_RT2500USB=m
-+CONFIG_RT73USB=m
-+CONFIG_RT2800USB=m
-+CONFIG_RT2800USB_RT53XX=y
-+CONFIG_RT2800USB_RT55XX=y
-+CONFIG_RT2800USB_UNKNOWN=y
-+CONFIG_RTL8187=m
++# CONFIG_WLAN_VENDOR_ADMTEK is not set
++# CONFIG_WLAN_VENDOR_ATH is not set
++# CONFIG_WLAN_VENDOR_ATMEL is not set
++# CONFIG_WLAN_VENDOR_BROADCOM is not set
++# CONFIG_WLAN_VENDOR_CISCO is not set
++# CONFIG_WLAN_VENDOR_INTEL is not set
++# CONFIG_WLAN_VENDOR_INTERSIL is not set
++# CONFIG_WLAN_VENDOR_MARVELL is not set
++# CONFIG_WLAN_VENDOR_MEDIATEK is not set
++# CONFIG_WLAN_VENDOR_RALINK is not set
++# CONFIG_WLAN_VENDOR_REALTEK is not set
++# CONFIG_WLAN_VENDOR_RSI is not set
++# CONFIG_WLAN_VENDOR_ST is not set
++# CONFIG_WLAN_VENDOR_TI is not set
++# CONFIG_WLAN_VENDOR_ZYDAS is not set
++# CONFIG_WLAN_VENDOR_QUANTENNA is not set
 +CONFIG_INPUT_EVDEV=y
 +# CONFIG_KEYBOARD_ATKBD is not set
 +CONFIG_KEYBOARD_QT1070=y
@@ -2604,21 +2650,19 @@ index 000000000..5ab746dae
 +CONFIG_SPI=y
 +CONFIG_SPI_ATMEL=y
 +CONFIG_SPI_GPIO=y
++CONFIG_SPI_SPIDEV=y
 +CONFIG_GPIO_SYSFS=y
 +CONFIG_POWER_RESET=y
-+CONFIG_POWER_SUPPLY=y
-+CONFIG_BATTERY_ACT8945A=y
 +CONFIG_WATCHDOG=y
 +CONFIG_AT91SAM9X_WATCHDOG=y
 +CONFIG_SAMA5D4_WATCHDOG=y
++CONFIG_SSB=y
++CONFIG_BCMA=y
 +CONFIG_MFD_ACT8945A=y
 +CONFIG_MFD_ATMEL_FLEXCOM=y
 +CONFIG_MFD_ATMEL_HLCDC=y
 +CONFIG_REGULATOR=y
 +CONFIG_REGULATOR_FIXED_VOLTAGE=y
-+CONFIG_REGULATOR_ACT8865=y
-+CONFIG_REGULATOR_ACT8945A=y
-+CONFIG_REGULATOR_PWM=m
 +CONFIG_DRM=y
 +CONFIG_DRM_ATMEL_HLCDC=y
 +CONFIG_DRM_PANEL_SIMPLE=y
@@ -2628,6 +2672,7 @@ index 000000000..5ab746dae
 +# CONFIG_BACKLIGHT_GENERIC is not set
 +CONFIG_BACKLIGHT_PWM=y
 +CONFIG_FRAMEBUFFER_CONSOLE=y
++CONFIG_LOGO=y
 +# CONFIG_HID_GENERIC is not set
 +CONFIG_USB=y
 +CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
@@ -2663,9 +2708,7 @@ index 000000000..5ab746dae
 +CONFIG_IIO=y
 +CONFIG_AT91_ADC=y
 +CONFIG_AT91_SAMA5D2_ADC=y
-+CONFIG_ENVELOPE_DETECTOR=m
-+CONFIG_DPOT_DAC=m
-+CONFIG_MCP4531=m
++CONFIG_ENVELOPE_DETECTOR=y
 +CONFIG_PWM=y
 +CONFIG_PWM_ATMEL=y
 +CONFIG_PWM_ATMEL_HLCDC_PWM=y
@@ -2682,11 +2725,14 @@ index 000000000..5ab746dae
 +CONFIG_NLS_CODEPAGE_850=y
 +CONFIG_NLS_ISO8859_1=y
 +CONFIG_NLS_UTF8=y
-+CONFIG_CRYPTO_USER_API_HASH=m
-+CONFIG_CRYPTO_USER_API_SKCIPHER=m
++CONFIG_CRYPTO_ECHAINIV=y
++CONFIG_CRYPTO_USER_API_HASH=y
++CONFIG_CRYPTO_USER_API_SKCIPHER=y
 +CONFIG_CRYPTO_DEV_ATMEL_AES=y
 +CONFIG_CRYPTO_DEV_ATMEL_TDES=y
 +CONFIG_CRYPTO_DEV_ATMEL_SHA=y
++CONFIG_CRC_CCITT=y
++CONFIG_CRC_ITU_T=y
 +CONFIG_STRIP_ASM_SYMS=y
 +CONFIG_DEBUG_FS=y
 +CONFIG_DEBUG_MEMORY_INIT=y
@@ -2695,10 +2741,10 @@ index 000000000..5ab746dae
 +CONFIG_DEBUG_USER=y
 diff --git a/arch/arm/configs/acme-rr-fbtft_defconfig b/arch/arm/configs/acme-rr-fbtft_defconfig
 new file mode 100644
-index 000000000..70898b898
+index 000000000..60da32dbb
 --- /dev/null
 +++ b/arch/arm/configs/acme-rr-fbtft_defconfig
-@@ -0,0 +1,223 @@
+@@ -0,0 +1,221 @@
 +# CONFIG_LOCALVERSION_AUTO is not set
 +# CONFIG_SWAP is not set
 +CONFIG_SYSVIPC=y
@@ -2776,7 +2822,6 @@ index 000000000..70898b898
 +CONFIG_BLK_DEV_RAM_SIZE=8192
 +CONFIG_ATMEL_TCLIB=y
 +CONFIG_ATMEL_SSC=y
-+CONFIG_EEPROM_AT24=y
 +CONFIG_SCSI=y
 +CONFIG_BLK_DEV_SD=y
 +# CONFIG_SCSI_LOWLEVEL is not set
@@ -2795,22 +2840,22 @@ index 000000000..70898b898
 +# CONFIG_NET_VENDOR_STMICRO is not set
 +# CONFIG_NET_VENDOR_WIZNET is not set
 +CONFIG_MICREL_PHY=y
++# CONFIG_WLAN_VENDOR_ADMTEK is not set
++# CONFIG_WLAN_VENDOR_ATH is not set
 +# CONFIG_WLAN_VENDOR_ATMEL is not set
-+CONFIG_B43=y
-+CONFIG_BRCMFMAC=y
-+CONFIG_LIBERTAS_THINFIRM=m
-+CONFIG_LIBERTAS_THINFIRM_USB=m
-+CONFIG_MWIFIEX=m
-+CONFIG_MWIFIEX_SDIO=m
-+CONFIG_MWIFIEX_USB=m
-+CONFIG_RT2X00=m
-+CONFIG_RT2500USB=m
-+CONFIG_RT73USB=m
-+CONFIG_RT2800USB=m
-+CONFIG_RT2800USB_RT53XX=y
-+CONFIG_RT2800USB_RT55XX=y
-+CONFIG_RT2800USB_UNKNOWN=y
-+CONFIG_RTL8187=m
++# CONFIG_WLAN_VENDOR_BROADCOM is not set
++# CONFIG_WLAN_VENDOR_CISCO is not set
++# CONFIG_WLAN_VENDOR_INTEL is not set
++# CONFIG_WLAN_VENDOR_INTERSIL is not set
++# CONFIG_WLAN_VENDOR_MARVELL is not set
++# CONFIG_WLAN_VENDOR_MEDIATEK is not set
++# CONFIG_WLAN_VENDOR_RALINK is not set
++# CONFIG_WLAN_VENDOR_REALTEK is not set
++# CONFIG_WLAN_VENDOR_RSI is not set
++# CONFIG_WLAN_VENDOR_ST is not set
++# CONFIG_WLAN_VENDOR_TI is not set
++# CONFIG_WLAN_VENDOR_ZYDAS is not set
++# CONFIG_WLAN_VENDOR_QUANTENNA is not set
 +CONFIG_INPUT_EVDEV=y
 +# CONFIG_KEYBOARD_ATKBD is not set
 +CONFIG_KEYBOARD_QT1070=y
@@ -2833,19 +2878,16 @@ index 000000000..70898b898
 +CONFIG_SPI_SPIDEV=y
 +CONFIG_GPIO_SYSFS=y
 +CONFIG_POWER_RESET=y
-+CONFIG_POWER_SUPPLY=y
-+CONFIG_BATTERY_ACT8945A=y
 +CONFIG_WATCHDOG=y
 +CONFIG_AT91SAM9X_WATCHDOG=y
 +CONFIG_SAMA5D4_WATCHDOG=y
++CONFIG_SSB=y
++CONFIG_BCMA=y
 +CONFIG_MFD_ACT8945A=y
 +CONFIG_MFD_ATMEL_FLEXCOM=y
 +CONFIG_MFD_ATMEL_HLCDC=y
 +CONFIG_REGULATOR=y
 +CONFIG_REGULATOR_FIXED_VOLTAGE=y
-+CONFIG_REGULATOR_ACT8865=y
-+CONFIG_REGULATOR_ACT8945A=y
-+CONFIG_REGULATOR_PWM=m
 +CONFIG_DRM=y
 +CONFIG_DRM_ATMEL_HLCDC=y
 +CONFIG_DRM_PANEL_SIMPLE=y
@@ -2853,6 +2895,7 @@ index 000000000..70898b898
 +# CONFIG_BACKLIGHT_GENERIC is not set
 +CONFIG_BACKLIGHT_PWM=y
 +CONFIG_FRAMEBUFFER_CONSOLE=y
++CONFIG_LOGO=y
 +# CONFIG_HID_GENERIC is not set
 +CONFIG_USB=y
 +CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
@@ -2892,9 +2935,7 @@ index 000000000..70898b898
 +CONFIG_IIO=y
 +CONFIG_AT91_ADC=y
 +CONFIG_AT91_SAMA5D2_ADC=y
-+CONFIG_ENVELOPE_DETECTOR=m
-+CONFIG_DPOT_DAC=m
-+CONFIG_MCP4531=m
++CONFIG_ENVELOPE_DETECTOR=y
 +CONFIG_PWM=y
 +CONFIG_PWM_ATMEL=y
 +CONFIG_PWM_ATMEL_HLCDC_PWM=y
@@ -2911,390 +2952,17 @@ index 000000000..70898b898
 +CONFIG_NLS_CODEPAGE_850=y
 +CONFIG_NLS_ISO8859_1=y
 +CONFIG_NLS_UTF8=y
-+CONFIG_CRYPTO_USER_API_HASH=m
-+CONFIG_CRYPTO_USER_API_SKCIPHER=m
++CONFIG_CRYPTO_ECHAINIV=y
++CONFIG_CRYPTO_USER_API_HASH=y
++CONFIG_CRYPTO_USER_API_SKCIPHER=y
 +CONFIG_CRYPTO_DEV_ATMEL_AES=y
 +CONFIG_CRYPTO_DEV_ATMEL_TDES=y
 +CONFIG_CRYPTO_DEV_ATMEL_SHA=y
++CONFIG_CRC_CCITT=y
++CONFIG_CRC_ITU_T=y
 +CONFIG_STRIP_ASM_SYMS=y
 +CONFIG_DEBUG_FS=y
 +CONFIG_DEBUG_MEMORY_INIT=y
 +# CONFIG_SCHED_DEBUG is not set
 +# CONFIG_FTRACE is not set
 +CONFIG_DEBUG_USER=y
-diff --git a/goscp.sh b/goscp.sh
-new file mode 100644
-index 000000000..74c08e31f
---- /dev/null
-+++ b/goscp.sh
-@@ -0,0 +1,5 @@
-+devicetree="acme-roadrunner-spi-display"
-+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- $devicetree.dtb
-+make -j8 ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage
-+sudo scp arch/arm/boot/dts/$devicetree.dtb root@192.168.1.44:/boot/acme-roadrunner.dtb
-+sudo scp arch/arm/boot/zImage root@192.168.1.44:/boot
-diff --git a/modules/lib/modules/4.19.78+/build b/modules/lib/modules/4.19.78+/build
-new file mode 120000
-index 000000000..2f8b77c61
---- /dev/null
-+++ b/modules/lib/modules/4.19.78+/build
-@@ -0,0 +1 @@
-+/home/tanzilli/roadrunner/linux-4.19.78
-\ No newline at end of file
-diff --git a/modules/lib/modules/4.19.78+/modules.alias b/modules/lib/modules/4.19.78+/modules.alias
-new file mode 100644
-index 000000000..0f5eb0bf3
---- /dev/null
-+++ b/modules/lib/modules/4.19.78+/modules.alias
-@@ -0,0 +1,241 @@
-+# Aliases extracted from modules themselves.
-+alias crypto-echainiv echainiv
-+alias echainiv echainiv
-+alias net-pf-38 af_alg
-+alias platform:pwm-regulator pwm_regulator
-+alias of:N*T*Cpwm-regulatorC* pwm_regulator
-+alias of:N*T*Cpwm-regulator pwm_regulator
-+alias usb:v05A3p8388d*dc*dsc*dp*ic*isc*ip*in* libertas_tf_usb
-+alias usb:v1286p2001d*dc*dsc*dp*ic*isc*ip*in* libertas_tf_usb
-+alias sdio:c*v02DFd9141* mwifiex_sdio
-+alias sdio:c*v02DFd9139* mwifiex_sdio
-+alias sdio:c*v02DFd9135* mwifiex_sdio
-+alias sdio:c*v02DFd912D* mwifiex_sdio
-+alias sdio:c*v02DFd9129* mwifiex_sdio
-+alias sdio:c*v02DFd9119* mwifiex_sdio
-+alias sdio:c*v02DFd9116* mwifiex_sdio
-+alias usb:v1286p204Ed*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
-+alias usb:v1286p2052d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
-+alias usb:v1286p204Ad*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
-+alias usb:v1286p2049d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
-+alias usb:v1286p2044d*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
-+alias usb:v1286p2043d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
-+alias usb:v1286p2042d*dc*dsc*dp*icFFiscFFipFFin* mwifiex_usb
-+alias usb:v1286p2041d*dc*dsc*dp*ic*isc*ip*in* mwifiex_usb
-+alias usb:v1737p0073d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v1B75p8187d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v18E8p6232d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v13D1pABE6d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v1371p9401d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v114Bp0150d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0DF6p0029d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0DF6p0028d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0DF6p000Dd*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v03F0pCA02d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0846p4260d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0846p6A00d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0846p6100d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0789p010Cd*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0769p11F2d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0BDAp8198d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0BDAp8197d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0BDAp8189d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0BDAp8187d*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v050Dp705Ed*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias usb:v0B05p171Dd*dc*dsc*dp*ic*isc*ip*in* rtl8187
-+alias of:N*T*Caxentia,tse850-envelope-detectorC* envelope_detector
-+alias of:N*T*Caxentia,tse850-envelope-detector envelope_detector
-+alias of:N*T*Cdpot-dacC* dpot_dac
-+alias of:N*T*Cdpot-dac dpot_dac
-+alias i2c:mcp4662-104 mcp4531
-+alias i2c:mcp4662-503 mcp4531
-+alias i2c:mcp4662-103 mcp4531
-+alias i2c:mcp4662-502 mcp4531
-+alias i2c:mcp4661-104 mcp4531
-+alias i2c:mcp4661-503 mcp4531
-+alias i2c:mcp4661-103 mcp4531
-+alias i2c:mcp4661-502 mcp4531
-+alias i2c:mcp4652-104 mcp4531
-+alias i2c:mcp4652-503 mcp4531
-+alias i2c:mcp4652-103 mcp4531
-+alias i2c:mcp4652-502 mcp4531
-+alias i2c:mcp4651-104 mcp4531
-+alias i2c:mcp4651-503 mcp4531
-+alias i2c:mcp4651-103 mcp4531
-+alias i2c:mcp4651-502 mcp4531
-+alias i2c:mcp4642-104 mcp4531
-+alias i2c:mcp4642-503 mcp4531
-+alias i2c:mcp4642-103 mcp4531
-+alias i2c:mcp4642-502 mcp4531
-+alias i2c:mcp4641-104 mcp4531
-+alias i2c:mcp4641-503 mcp4531
-+alias i2c:mcp4641-103 mcp4531
-+alias i2c:mcp4641-502 mcp4531
-+alias i2c:mcp4632-104 mcp4531
-+alias i2c:mcp4632-503 mcp4531
-+alias i2c:mcp4632-103 mcp4531
-+alias i2c:mcp4632-502 mcp4531
-+alias i2c:mcp4631-104 mcp4531
-+alias i2c:mcp4631-503 mcp4531
-+alias i2c:mcp4631-103 mcp4531
-+alias i2c:mcp4631-502 mcp4531
-+alias i2c:mcp4562-104 mcp4531
-+alias i2c:mcp4562-503 mcp4531
-+alias i2c:mcp4562-103 mcp4531
-+alias i2c:mcp4562-502 mcp4531
-+alias i2c:mcp4561-104 mcp4531
-+alias i2c:mcp4561-503 mcp4531
-+alias i2c:mcp4561-103 mcp4531
-+alias i2c:mcp4561-502 mcp4531
-+alias i2c:mcp4552-104 mcp4531
-+alias i2c:mcp4552-503 mcp4531
-+alias i2c:mcp4552-103 mcp4531
-+alias i2c:mcp4552-502 mcp4531
-+alias i2c:mcp4551-104 mcp4531
-+alias i2c:mcp4551-503 mcp4531
-+alias i2c:mcp4551-103 mcp4531
-+alias i2c:mcp4551-502 mcp4531
-+alias i2c:mcp4542-104 mcp4531
-+alias i2c:mcp4542-503 mcp4531
-+alias i2c:mcp4542-103 mcp4531
-+alias i2c:mcp4542-502 mcp4531
-+alias i2c:mcp4541-104 mcp4531
-+alias i2c:mcp4541-503 mcp4531
-+alias i2c:mcp4541-103 mcp4531
-+alias i2c:mcp4541-502 mcp4531
-+alias i2c:mcp4532-104 mcp4531
-+alias i2c:mcp4532-503 mcp4531
-+alias i2c:mcp4532-103 mcp4531
-+alias i2c:mcp4532-502 mcp4531
-+alias i2c:mcp4531-104 mcp4531
-+alias i2c:mcp4531-503 mcp4531
-+alias i2c:mcp4531-103 mcp4531
-+alias i2c:mcp4531-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4662-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4661-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4652-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4651-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4642-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4641-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4632-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4631-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4562-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4561-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4552-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4551-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4542-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4541-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4532-502 mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-104C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-104 mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-503C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-503 mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-103C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-103 mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-502C* mcp4531
-+alias of:N*T*Cmicrochip,mcp4531-502 mcp4531
-diff --git a/modules/lib/modules/4.19.78+/modules.dep b/modules/lib/modules/4.19.78+/modules.dep
-new file mode 100644
-index 000000000..b9565e852
---- /dev/null
-+++ b/modules/lib/modules/4.19.78+/modules.dep
-@@ -0,0 +1,15 @@
-+kernel/crypto/echainiv.ko:
-+kernel/crypto/af_alg.ko:
-+kernel/crypto/algif_hash.ko: kernel/crypto/af_alg.ko
-+kernel/crypto/algif_skcipher.ko: kernel/crypto/af_alg.ko
-+kernel/drivers/regulator/pwm-regulator.ko:
-+kernel/drivers/misc/eeprom/eeprom_93cx6.ko:
-+kernel/drivers/net/wireless/marvell/libertas_tf/libertas_tf.ko:
-+kernel/drivers/net/wireless/marvell/libertas_tf/libertas_tf_usb.ko: kernel/drivers/net/wireless/marvell/libertas_tf/libertas_tf.ko
-+kernel/drivers/net/wireless/marvell/mwifiex/mwifiex.ko:
-+kernel/drivers/net/wireless/marvell/mwifiex/mwifiex_sdio.ko: kernel/drivers/net/wireless/marvell/mwifiex/mwifiex.ko
-+kernel/drivers/net/wireless/marvell/mwifiex/mwifiex_usb.ko: kernel/drivers/net/wireless/marvell/mwifiex/mwifiex.ko
-+kernel/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8187.ko: kernel/drivers/misc/eeprom/eeprom_93cx6.ko
-+kernel/drivers/iio/adc/envelope-detector.ko:
-+kernel/drivers/iio/dac/dpot-dac.ko:
-+kernel/drivers/iio/potentiometer/mcp4531.ko:
-diff --git a/modules/lib/modules/4.19.78+/modules.devname b/modules/lib/modules/4.19.78+/modules.devname
-new file mode 100644
-index 000000000..e69de29bb
-diff --git a/modules/lib/modules/4.19.78+/modules.softdep b/modules/lib/modules/4.19.78+/modules.softdep
-new file mode 100644
-index 000000000..5554ccca7
---- /dev/null
-+++ b/modules/lib/modules/4.19.78+/modules.softdep
-@@ -0,0 +1 @@
-+# Soft dependencies extracted from modules themselves.
-diff --git a/modules/lib/modules/4.19.78+/modules.symbols b/modules/lib/modules/4.19.78+/modules.symbols
-new file mode 100644
-index 000000000..73a2d3831
---- /dev/null
-+++ b/modules/lib/modules/4.19.78+/modules.symbols
-@@ -0,0 +1,65 @@
-+# Aliases for symbols, used by symbol_request().
-+alias symbol:mwifiex_main_process mwifiex
-+alias symbol:af_alg_release af_alg
-+alias symbol:lbtf_cmd_response_rx libertas_tf
-+alias symbol:lbtf_bcn_sent libertas_tf
-+alias symbol:af_alg_make_sg af_alg
-+alias symbol:af_alg_cmsg_send af_alg
-+alias symbol:af_alg_free_resources af_alg
-+alias symbol:mwifiex_enable_hs mwifiex
-+alias symbol:eeprom_93cx6_wren eeprom_93cx6
-+alias symbol:af_alg_link_sg af_alg
-+alias symbol:mwifiex_write_data_complete mwifiex
-+alias symbol:mwifiex_process_hs_config mwifiex
-+alias symbol:mwifiex_queue_main_work mwifiex
-+alias symbol:mwifiex_cancel_hs mwifiex
-+alias symbol:af_alg_wmem_wakeup af_alg
-+alias symbol:eeprom_93cx6_multiread eeprom_93cx6
-+alias symbol:lbtf_rx libertas_tf
-+alias symbol:af_alg_count_tsgl af_alg
-+alias symbol:mwifiex_add_card mwifiex
-+alias symbol:mwifiex_alloc_dma_align_buf mwifiex
-+alias symbol:mwifiex_process_sleep_confirm_resp mwifiex
-+alias symbol:mwifiex_shutdown_sw mwifiex
-+alias symbol:lbtf_debug libertas_tf
-+alias symbol:af_alg_sendmsg af_alg
-+alias symbol:eeprom_93cx6_readb eeprom_93cx6
-+alias symbol:lbtf_add_card libertas_tf
-+alias symbol:lbtf_cmd_copyback libertas_tf
-+alias symbol:mwifiex_remove_card mwifiex
-+alias symbol:mwifiex_dnld_fw mwifiex
-+alias symbol:eeprom_93cx6_write eeprom_93cx6
-+alias symbol:__lbtf_cmd libertas_tf
-+alias symbol:mwifiex_prepare_fw_dump_info mwifiex
-+alias symbol:af_alg_alloc_tsgl af_alg
-+alias symbol:af_alg_async_cb af_alg
-+alias symbol:mwifiex_reinit_sw mwifiex
-+alias symbol:af_alg_pull_tsgl af_alg
-+alias symbol:mwifiex_handle_rx_packet mwifiex
-+alias symbol:af_alg_alloc_areq af_alg
-+alias symbol:af_alg_release_parent af_alg
-+alias symbol:af_alg_data_wakeup af_alg
-+alias symbol:mwifiex_deauthenticate_all mwifiex
-+alias symbol:mwifiex_del_virtual_intf mwifiex
-+alias symbol:af_alg_register_type af_alg
-+alias symbol:af_alg_sendpage af_alg
-+alias symbol:af_alg_free_sg af_alg
-+alias symbol:af_alg_wait_for_wmem af_alg
-+alias symbol:mwifiex_init_shutdown_fw mwifiex
-+alias symbol:lbtf_send_tx_feedback libertas_tf
-+alias symbol:mwifiex_fw_dump_event mwifiex
-+alias symbol:lbtf_remove_card libertas_tf
-+alias symbol:af_alg_accept af_alg
-+alias symbol:mwifiex_drv_info_dump mwifiex
-+alias symbol:mwifiex_upload_device_dump mwifiex
-+alias symbol:mwifiex_multi_chan_resync mwifiex
-+alias symbol:mwifiex_add_virtual_intf mwifiex
-+alias symbol:af_alg_poll af_alg
-+alias symbol:af_alg_wait_for_data af_alg
-+alias symbol:af_alg_unregister_type af_alg
-+alias symbol:mwifiex_disable_auto_ds mwifiex
-+alias symbol:eeprom_93cx6_read eeprom_93cx6
-+alias symbol:af_alg_free_areq_sgls af_alg
-+alias symbol:af_alg_get_rsgl af_alg
-+alias symbol:eeprom_93cx6_multireadb eeprom_93cx6
-+alias symbol:_mwifiex_dbg mwifiex
-diff --git a/modules/lib/modules/4.19.78+/source b/modules/lib/modules/4.19.78+/source
-new file mode 120000
-index 000000000..2f8b77c61
---- /dev/null
-+++ b/modules/lib/modules/4.19.78+/source
-@@ -0,0 +1 @@
-+/home/tanzilli/roadrunner/linux-4.19.78
-\ No newline at end of file
