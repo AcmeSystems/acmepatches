@@ -1,9 +1,9 @@
 diff --git a/arch/arm/boot/dts/acme-acqua.dts b/arch/arm/boot/dts/acme-acqua.dts
 new file mode 100644
-index 000000000..9925f3018
+index 000000000..abd5cef35
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-acqua.dts
-@@ -0,0 +1,331 @@
+@@ -0,0 +1,266 @@
 +/*
 + * acme-acqua.dts - Device Tree file for Acqua A5 Board
 + *
@@ -19,7 +19,7 @@ index 000000000..9925f3018
 +
 +/ {
 +	model = "Acme Systems Acqua SOM";
-+	compatible = "atmel,acme-acqua", "atmel,sama5d3", "atmel,sama5";
++	compatible = "acme,acqua", "atmel,sama5d3", "atmel,sama5";
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
@@ -55,6 +55,8 @@ index 000000000..9925f3018
 +				};
 +			};
 +		
++			/* MicroSD mounted on the SOM */
++		
 +			mmc0: mmc@f0000000 {
 +				pinctrl-0 = <&pinctrl_mmc0_clk_cmd_dat0 &pinctrl_mmc0_dat1_3 &pinctrl_mmc0_cd>;
 +				status = "okay";
@@ -63,8 +65,11 @@ index 000000000..9925f3018
 +					bus-width = <4>;
 +				};
 +			};
-+
++  
++  			/* Optional MicroSD to mount on the carrier board */
++  
 +			mmc1: mmc@f8000000 {
++				pinctrl-0 = <&pinctrl_mmc1_clk_cmd_dat0 &pinctrl_mmc1_dat1_3 &pinctrl_mmc1_cd>;
 +				status = "disabled";
 +				slot@0 {
 +					reg = <0>;
@@ -122,15 +127,6 @@ index 000000000..9925f3018
 +				status = "disabled";
 +			};
 +
-+			mmc1: mmc@f8000000 {
-+				pinctrl-0 = <&pinctrl_mmc1_clk_cmd_dat0 &pinctrl_mmc1_dat1_3 &pinctrl_mmc1_cd>;
-+				status = "disabled";
-+				slot@0 {
-+					reg = <0>;
-+					bus-width = <4>;
-+					cd-gpios = <&pioE 1 GPIO_ACTIVE_HIGH>;
-+				};
-+			};
 +
 +			spi1: spi@f8008000 {
 +				cs-gpios = <&pioC 25 0>;
@@ -211,113 +207,24 @@ index 000000000..9925f3018
 +			};
 +		};
 +
-+		usb0: gadget@500000 {
-+			atmel,vbus-gpio = <&pioE 9 GPIO_ACTIVE_HIGH>;	/* PE9, conflicts with A9 */
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_usba_vbus>;
-+			status = "okay";
-+		};
++        usb0: gadget@500000 {
++            atmel,vbus-gpio = <&pioA 28 GPIO_ACTIVE_HIGH>;
++            atmel,oc-gpio = <&pioE 27 GPIO_ACTIVE_HIGH>;
++            status = "okay";
++        };
 +
-+		usb1: ohci@600000 {
-+			num-ports = <3>;
-+			atmel,vbus-gpio = <0
-+					   &pioE 3 GPIO_ACTIVE_LOW
-+					   &pioE 4 GPIO_ACTIVE_LOW
-+					  >;
-+			status = "okay";
-+		};
++        usb1: ohci@600000 {
++            atmel,vbus-gpio = <&pioC 15 GPIO_ACTIVE_HIGH>;
++            atmel,oc-gpio = <&pioE 28 GPIO_ACTIVE_HIGH>;
++            status = "okay";
++        };
 +
-+		usb2: ehci@700000 {
-+			status = "okay";
-+		};
-+
-+		ebi: ebi@10000000 {
-+			pinctrl-0 = <&pinctrl_ebi_nand_addr>;
-+			pinctrl-names = "default";
-+			status = "disabled";
-+
-+			nand_controller: nand-controller {
-+				status = "disabled";
-+
-+				nand@3 {
-+					reg = <0x3 0x0 0x2>;
-+					atmel,rb = <0>;
-+					nand-bus-width = <8>;
-+					nand-ecc-mode = "hw";
-+					nand-ecc-strength = <4>;
-+					nand-ecc-step-size = <512>;
-+					nand-on-flash-bbt;
-+					label = "atmel_nand";
-+
-+					partitions {
-+						compatible = "fixed-partitions";
-+						#address-cells = <1>;
-+						#size-cells = <1>;
-+
-+						at91bootstrap@0 {
-+							label = "at91bootstrap";
-+							reg = <0x0 0x40000>;
-+						};
-+
-+						bootloader@40000 {
-+							label = "bootloader";
-+							reg = <0x40000 0x80000>;
-+						};
-+
-+						bootloaderenv@c0000 {
-+							label = "bootloader env";
-+							reg = <0xc0000 0xc0000>;
-+						};
-+
-+						dtb@180000 {
-+							label = "device tree";
-+							reg = <0x180000 0x80000>;
-+						};
-+
-+						kernel@200000 {
-+							label = "kernel";
-+							reg = <0x200000 0x600000>;
-+						};
-+
-+						rootfs@800000 {
-+							label = "rootfs";
-+							reg = <0x800000 0x0f800000>;
-+						};
-+					};
-+				};
-+			};
++        usb2: ehci@700000 {
++            status = "okay";
++        };
 +		
-+		};
-+
 +	};
-+ 
-+	leds {
-+		compatible = "gpio-leds";
 +
-+		d0 {
-+			label = "d0";
-+			gpios = <&pioE 3 GPIO_ACTIVE_LOW>;
-+			default-state = "off";
-+		};
-+
-+		d1 {
-+			label = "d1";
-+			gpios = <&pioE 4 GPIO_ACTIVE_LOW>;
-+			default-state = "off";
-+		};
-+
-+		d2 {
-+			label = "d2";
-+			gpios = <&pioE 5 GPIO_ACTIVE_LOW>;
-+			linux,default-trigger = "heartbeat";
-+		};
-+
-+		d3 {
-+			label = "d3";
-+			gpios = <&pioE 6 GPIO_ACTIVE_LOW>;
-+			linux,default-trigger = "mmc0";
-+		};
-+	};		
 +
 +	panel: panel {
 +		/* compatible = "acme,43inch", "simple-panel"; */
@@ -333,7 +240,276 @@ index 000000000..9925f3018
 +		};
 +	};
 +
++ 
++	leds {
++		compatible = "gpio-leds";
 +
++		led0 {
++			label = "led0";
++			gpios = <&pioE 3 GPIO_ACTIVE_LOW>;
++			default-state = "off";
++		};
++
++		led1 {
++			label = "led1";
++			gpios = <&pioE 4 GPIO_ACTIVE_LOW>;
++			default-state = "off";
++		};
++
++		led2 {
++			label = "led2";
++			gpios = <&pioE 5 GPIO_ACTIVE_LOW>;
++			linux,default-trigger = "heartbeat";
++		};
++
++		led3 {
++			label = "led3";
++			gpios = <&pioE 6 GPIO_ACTIVE_LOW>;
++			linux,default-trigger = "mmc0";
++			default-state = "off";
++		};
++	};		
++};
+diff --git a/arch/arm/boot/dts/acme-greenlog.dts b/arch/arm/boot/dts/acme-greenlog.dts
+new file mode 100644
+index 000000000..85bd4b096
+--- /dev/null
++++ b/arch/arm/boot/dts/acme-greenlog.dts
+@@ -0,0 +1,235 @@
++/*
++ * acme-acqua.dts - Device Tree file for Acqua A5
++ *
++ */
++
++/dts-v1/;
++#include "sama5d31.dtsi"
++#include "sama5d3xcm.dtsi"
++
++/ {
++    model = "Acme Systems Acqua A5";
++    compatible = "atmel,sama5d3xcm", "atmel,sama5d31", "atmel,sama5d3", "atmel,sama5";
++
++    chosen {
++        stdout-path = "serial0:115200n8";
++        bootargs = "mem=512M console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait consoleblank=0";
++    };
++
++    memory {
++        reg = <0x20000000 0x10000000>;
++    };
++
++    clocks {
++        slow_xtal {
++            clock-frequency = <32768>;
++        };
++
++        main_xtal {
++            clock-frequency = <12000000>;
++        };
++    };
++
++    ahb {
++        apb {
++            mmc0: mmc@f0000000 {
++                status = "okay";
++                pinctrl-0 = <&pinctrl_mmc0_clk_cmd_dat0 &pinctrl_mmc0_dat1_3 &pinctrl_mmc0_dat4_7>;
++                slot@0 {
++                    reg = <0>;
++                    bus-width = <8>;
++                    cd-gpios = <&pioE 0 GPIO_ACTIVE_LOW>;
++                };
++            };
++
++            /* /dev/ttyS1 */
++            usart0: serial@f001c000 {
++                status = "okay";
++            };
++
++            /* /dev/ttyS2 */
++            usart1: serial@f0020000 {
++                status = "okay";
++            };
++
++            /* /dev/ttyS3 */
++            usart2: serial@f8020000 {
++                status = "okay";
++                pinctrl-0 = <&pinctrl_usart2 &pinctrl_usart2_rts_cts>;
++                rs485-rts-delay = <0 20>;
++//              rs485-rts-active-low; // drive RTS low when sending (default is high)
++                linux,rs485-enabled-at-boot-time;
++//              rs485-rx-during-tx;
++            };
++
++            /* /dev/ttyS4 */
++            usart3: serial@f8024000 {
++                status = "okay";
++                pinctrl-0 = <&pinctrl_usart3 &pinctrl_usart3_rts_cts>;
++                rs485-rts-delay = <0 20>;
++//              rs485-rts-active-low; // drive RTS low when sending (default is high)
++                linux,rs485-enabled-at-boot-time;
++//              rs485-rx-during-tx;
++            };
++
++            /* /dev/ttyS5 */
++            uart0: serial@f0024000 {
++                status = "okay";
++            };
++
++            spi0: spi@f0004000 {
++//              cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <&pioD 15 0>, <&pioD 16 0>;
++                status = "okay";
++                // TODO: ATWILC3000-MR110CA
++            };
++
++            spi1: spi@f8008000 {
++//              cs-gpios = <&pioC 25 0>, <&pioC 26 0>, <&pioC 27 0>, <&pioC 28 0>;
++                status = "okay";
++                adc@0 {
++                    compatible = "ti,ads7950";
++                    reg = <0>;
++                    #io-channel-cells = <1>;
++                    vref-supply = <&adc_ref>;
++                    spi-max-frequency = <10000000>;
++                };
++            };
++
++            i2c0: i2c@f0014000 {
++                status = "okay";
++            };
++
++            macb1: ethernet@f802c000 {
++                status = "okay";
++                phy-mode = "rmii";
++
++                #address-cells = <1>;
++                #size-cells = <0>;
++                phy0: ethernet-phy@1 {
++                    interrupt-parent = <&pioE>;
++                    interrupts = <30 IRQ_TYPE_EDGE_FALLING>;
++                    reg = <1>;
++                };
++            };
++
++            pinctrl@fffff200 {
++                board {
++                    pinctrl_sensor_reset: sensor_reset-0 {
++                        atmel,pins =
++                            <AT91_PIOE 24 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;   /* PE24 gpio */
++                    };
++
++                    pinctrl_sensor_power: sensor_power-0 {
++                        atmel,pins =
++                            <AT91_PIOE 29 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* PE29 gpio */
++                    };
++
++                    pinctrl_usba_vbus: usba_vbus {
++                        atmel,pins =
++                            <AT91_PIOD 29 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>; /* PD29 GPIO with deglitch */
++                    };
++                };
++            };
++
++            dbgu: serial@ffffee00 {
++                dmas = <0>, <0>;    /*  Do not use DMA for dbgu */
++                status = "okay";
++            };
++
++            watchdog@fffffe40 {
++                status = "disabled";
++            };
++        };
++
++        usb0: gadget@500000 {
++            atmel,vbus-gpio = <&pioA 28 GPIO_ACTIVE_HIGH>;
++            atmel,oc-gpio = <&pioE 27 GPIO_ACTIVE_HIGH>;
++            status = "okay";
++        };
++
++        usb1: ohci@600000 {
++            atmel,vbus-gpio = <&pioC 15 GPIO_ACTIVE_HIGH>;
++            atmel,oc-gpio = <&pioE 28 GPIO_ACTIVE_HIGH>;
++            status = "okay";
++        };
++
++        usb2: ehci@700000 {
++            status = "okay";
++        };
++    };
++
++    leds {
++        compatible = "gpio-leds";
++
++        led0 {
++            label = "led0";
++            gpios = <&pioE 3 GPIO_ACTIVE_LOW>;
++            default-state = "off";
++        };
++
++        led1 {
++            label = "led1";
++            gpios = <&pioE 4 GPIO_ACTIVE_LOW>;
++            default-state = "off";
++        };
++
++        led2 {
++            label = "led2";
++            gpios = <&pioE 5 GPIO_ACTIVE_LOW>;
++            linux,default-trigger = "heartbeat";
++        };
++
++        led3 {
++            label = "led3";
++            gpios = <&pioE 6 GPIO_ACTIVE_LOW>;
++            linux,default-trigger = "mmc0";
++        };
++
++        d2 {
++            status = "disabled";
++        };
++
++        green {
++            label = "green";
++            gpios = <&pioD 26 GPIO_ACTIVE_LOW>;
++            default-state = "off";
++        };
++
++        red {
++            label = "red";
++            gpios = <&pioD 14 GPIO_ACTIVE_LOW>;
++            default-state = "off";
++        };
++
++        rgb-red {
++            label = "rgb-red";
++            gpios = <&pioD 19 GPIO_ACTIVE_LOW>;
++            default-state = "off";
++        };
++
++        rgb-green {
++            label = "rgb-green";
++            gpios = <&pioD 31 GPIO_ACTIVE_LOW>;
++            default-state = "off";
++        };
++
++        rgb-blue {
++            label = "rgb-blue";
++            gpios = <&pioD 30 GPIO_ACTIVE_LOW>;
++            default-state = "off";
++        };
++    };
++
++    onewire {
++		compatible = "w1-gpio";
++		gpios = <&pioC 11 GPIO_ACTIVE_HIGH>;
++	};
++
++    adc_ref: regulator1 {
++        compatible = "regulator-fixed";
++        regulator-name = "adc ref";
++        regulator-min-microvolt = <2500000>;
++        regulator-max-microvolt = <2500000>;
++        regulator-boot-on;
++    };
 +};
 diff --git a/arch/arm/boot/dts/acme-roadrunner.dts b/arch/arm/boot/dts/acme-roadrunner.dts
 new file mode 100644
