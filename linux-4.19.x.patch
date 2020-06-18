@@ -1,9 +1,9 @@
 diff --git a/arch/arm/boot/dts/acme-acqua.dts b/arch/arm/boot/dts/acme-acqua.dts
 new file mode 100644
-index 000000000..abd5cef35
+index 000000000..264af2980
 --- /dev/null
 +++ b/arch/arm/boot/dts/acme-acqua.dts
-@@ -0,0 +1,266 @@
+@@ -0,0 +1,301 @@
 +/*
 + * acme-acqua.dts - Device Tree file for Acqua A5 Board
 + *
@@ -108,6 +108,55 @@ index 000000000..abd5cef35
 +				status = "disabled";
 +			};
 +
++			macb1: ethernet@f802c000 {
++				compatible = "atmel,sama5d3-macb", "cdns,at91sam9260-macb", "cdns,macb";
++				
++				status = "okay";
++				phy-mode = "rmii";
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				nvmem-cells = <&eth0_addr>;
++				nvmem-cell-names = "mac-address";
++
++                phy0: ethernet-phy@1 {
++                    interrupt-parent = <&pioE>;
++                    interrupts = <30 IRQ_TYPE_EDGE_FALLING>;
++                    reg = <1>;
++                };
++
++				/*ethernet-phy@1 {
++					reg = <0x1>;
++				};*/
++			};
++
++			/* Bit banging internal I2C to manage the AT24MAC402 chip */
++
++			i2c3@ {
++				compatible = "i2c-gpio";
++				gpios = <&pioE 1 0 /* SDA */
++						 &pioE 2 0 /* SCK */
++						>;
++				i2c-gpio,delay-us = <4>;    /* ~178 kHz */
++				#address-cells = <1>;
++				#size-cells = <0>;
++			
++				/* EEPROM contains the eth0 MAC address */
++				 
++				eeprom@58 {
++					compatible = "atmel,24mac402";
++					pagesize = <256>;
++					read-only;
++					reg = <0x58>;
++					#address-cells = <1>;
++					#size-cells = <1>;
++
++					eth0_addr: eth-mac-addr@9A {
++						reg = <0x0 0x06>;
++					};
++				};
++			};
++
 +			pwm0: pwm@f002c000 {
 +				pinctrl-names = "default";
 +				pinctrl-0 = <&pinctrl_pwm0_pwmh0_0 &pinctrl_pwm0_pwmh1_0>;
@@ -155,16 +204,6 @@ index 000000000..abd5cef35
 +				status = "disabled";
 +			};
 +
-+			macb1: ethernet@f802c000 {
-+				phy-mode = "rmii";
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				status = "okay";
-+
-+				ethernet-phy@1 {
-+					reg = <0x1>;
-+				};
-+			};
 +
 +			dbgu: serial@ffffee00 {
 +				status = "okay";
@@ -208,14 +247,10 @@ index 000000000..abd5cef35
 +		};
 +
 +        usb0: gadget@500000 {
-+            atmel,vbus-gpio = <&pioA 28 GPIO_ACTIVE_HIGH>;
-+            atmel,oc-gpio = <&pioE 27 GPIO_ACTIVE_HIGH>;
 +            status = "okay";
 +        };
 +
 +        usb1: ohci@600000 {
-+            atmel,vbus-gpio = <&pioC 15 GPIO_ACTIVE_HIGH>;
-+            atmel,oc-gpio = <&pioE 28 GPIO_ACTIVE_HIGH>;
 +            status = "okay";
 +        };
 +
