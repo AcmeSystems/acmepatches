@@ -15,5 +15,5 @@ available on: https://www.acmesystems.it/tutorials.
 	git checkout acme
 	git diff master > acme.patch
 
-(C) 2017 - Acme Systems srl
-(C) 2017 - Sergio Tanzilli - tanzilli@acmesystems.it
+(C) 2021 - Acme Systems srl
+(C) 2021 - Sergio Tanzilli - tanzilli@acmesystems.it
